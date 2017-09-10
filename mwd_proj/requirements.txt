@@ -3,6 +3,7 @@
 #sudo apt-get install git git-core zsh
 #sudo apt-get install python-pip
 #sudo apt-get install gunicorn supervisor nginx
+#sudo apt-get install mysql-server mysql-client
 cryptography==2.0
 decorator==4.0.4
 Django==1.8.4
