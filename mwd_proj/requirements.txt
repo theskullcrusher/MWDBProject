@@ -2,6 +2,7 @@
 cryptography==2.0
 decorator==4.0.4
 Django==1.8.4
+django-csvimport==2.11
 django-phonenumber-field==0.7.2
 django-tables2==1.10.0
 enum34==1.0.4
