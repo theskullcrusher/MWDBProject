@@ -12,7 +12,13 @@ def populate_db():
 	"Populate the db"
 	try:
 		pass
-		count = 0
+		count1 = 0
+		count2 = 0
+		count3 = 0
+		count4 = 0
+		count5 = 0
+		count6 = 0
+		count7 = 0
 		MovieActor.objects.all().delete()
 		MlTags.objects.all().delete()
 		MlRatings.objects.all().delete()
@@ -29,7 +35,7 @@ def populate_db():
 				try:
 					GenomeTags.objects.create(tagid=row[0], tag=row[1])
 				except:
-					count += 1
+					count1 += 1
 					continue
 
 		with open("../dataset_p1/imdb-actor-info.csv","rb") as f:
@@ -40,7 +46,7 @@ def populate_db():
 				try:
 					ImdbActorInfo.objects.create(actorid=row[0], name=row[1], gender=row[2].strip())
 				except:
-					count += 1
+					count2 += 1
 					continue
 
 		with open("../dataset_p1/mlmovies.csv","rb") as f:
@@ -52,7 +58,7 @@ def populate_db():
 				try:
 					MlMovies.objects.create(movieid=row[0], moviename=row[1], genres=row[2])
 				except:
-					count += 1
+					count3 += 1
 					continue
 
 
@@ -64,7 +70,7 @@ def populate_db():
 				try:
 					MlUsers.objects.create(userid=row[0])
 				except:
-					count += 1
+					count4 += 1
 					continue
 
 		with open("../dataset_p1/movie-actor.csv","rb") as f:
@@ -75,7 +81,7 @@ def populate_db():
 				try:
 					MovieActor.objects.create(movieid=row[0], actorid=row[1], actor_movie_rank=row[2])
 				except:
-					count += 1
+					count5 += 1
 					continue
 
 		with open("../dataset_p1/mltags.csv","rb") as f:
@@ -92,7 +98,7 @@ def populate_db():
 				try:
 					MlTags.objects.create(userid=row[0], movieid=row[1], tagid=row[2], timestamp=row[3])
 				except:
-					count += 1
+					count6 += 1
 					continue
 
 		with open("../dataset_p1/mlratings.csv","rb") as f:
@@ -109,9 +115,15 @@ def populate_db():
 				try:
 					MlRatings.objects.create(movieid=row[0], userid=row[1], imdbid=row[2], rating=row[3], timestamp=row[4])
 				except:
-					count += 1
+					count7 += 1
 					continue
-		print "Unsuccessful Insertions:", count
+		print "Unsuccessful Insertions Table1:", count1
+		print "Unsuccessful Insertions Table2:", count2
+		print "Unsuccessful Insertions Table3:", count3
+		print "Unsuccessful Insertions Table4:", count4
+		print "Unsuccessful Insertions Table5:", count5
+		print "Unsuccessful Insertions Table6:", count6
+		print "Unsuccessful Insertions Table7:", count7
 
 
 	except Exception as e:
