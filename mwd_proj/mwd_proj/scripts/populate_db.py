@@ -76,15 +76,19 @@ def populate_db():
 					MovieActor.objects.create(movieid=row[0], actorid=row[1], actor_movie_rank=row[2])
 				except:
 					count += 1
-				 continue
+					continue
 
 		with open("../dataset_p1/mltags.csv","rb") as f:
 			rows = csv.reader(f)
 			for n, row in enumerate(rows):
 				if n == 0:
 					continue
-				dt = datetime.strptime(str(row[3]), "%m/%d/%Y  %I:%M:%S %p")
-				row[3] = dt.strftime('%s')
+                                try:
+					dt = datetime.strptime(str(row[3]), "%m/%d/%Y  %I:%M:%S %p")
+					row[3] = int(dt.strftime('%s'))
+                                except:
+					dt = datetime.strptime(str(row[3]), "%Y-%m-%d %H:%M:%S")
+                                        row[3] = int(dt.strftime('%s'))
 				try:
 					MlTags.objects.create(userid=row[0], movieid=row[1], tagid=row[2], timestamp=row[3])
 				except:
@@ -96,8 +100,12 @@ def populate_db():
 			for n, row in enumerate(rows):
 				if n == 0:
 					continue
-				dt = datetime.strptime(str(row[4]), "%m/%d/%Y  %I:%M:%S %p")
-				row[4] = dt.strftime('%s')
+                                try:
+                                        dt = datetime.strptime(str(row[4]), "%m/%d/%Y  %I:%M:%S %p")
+                                        row[4] = int(dt.strftime('%s'))
+                                except:
+                                        dt = datetime.strptime(str(row[4]), "%Y-%m-%d %H:%M:%S")
+                                        row[4] = int(dt.strftime('%s'))
 				try:
 					MlRatings.objects.create(movieid=row[0], userid=row[1], imdbid=row[2], rating=row[3], timestamp=row[4])
 				except:
