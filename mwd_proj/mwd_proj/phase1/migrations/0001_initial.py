@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import django.contrib.postgres.fields
 
 
 class Migration(migrations.Migration):
@@ -31,7 +30,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('movieid', models.IntegerField(serialize=False, primary_key=True)),
                 ('moviename', models.TextField(blank=True)),
-                ('genres', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=512, blank=True), size=None)),
+                ('genres', models.TextField(blank=True)),
             ],
         ),
         migrations.CreateModel(

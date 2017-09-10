@@ -4,6 +4,8 @@
 #sudo apt-get install python-pip
 #sudo apt-get install gunicorn supervisor nginx
 #sudo apt-get install mysql-server mysql-client
+#sudo apt-get build-dep python-psycopg2
+#sudo apt-get install python-mysqldb
 cryptography==2.0
 decorator==4.0.4
 Django==1.8.4
@@ -22,6 +24,7 @@ mysqlclient==1.3.12
 ndg-httpsclient==0.4.0
 pexpect==4.0
 phonenumbers==7.1.0
+psycopg2==2.7.3.1
 pycparser==2.14
 pyOpenSSL==0.15.1
 requests==2.7.0

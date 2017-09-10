@@ -16,7 +16,7 @@ class ImdbActorInfo(models.Model):
 class MlMovies(models.Model):
 	movieid = models.IntegerField(primary_key=True)
 	moviename = models.TextField(blank=True)
-	genres = ArrayField(models.CharField(max_length=512,blank=True))
+	genres = models.TextField(blank=True)
 
 class MlUsers(models.Model):
 	userid = models.IntegerField(primary_key=True)
