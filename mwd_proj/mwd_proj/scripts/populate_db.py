@@ -26,22 +26,22 @@ def populate_db():
 			for n, row in enumerate(rows):
 				if n == 0:
 					continue
-			  try:
-				GenomeTags.objects.create(tagid=row[0], tag=row[1])
-			  except:
-			  	count += 1
-			  	continue
+				try:
+					GenomeTags.objects.create(tagid=row[0], tag=row[1])
+				except:
+					count += 1
+					continue
 
 		with open("../dataset_p1/imdb-actor-info.csv","rb") as f:
 			rows = csv.reader(f)
 			for n, row in enumerate(rows):
 				if n == 0:
 					continue
-			  try:
-				ImdbActorInfo.objects.create(actorid=row[0], name=row[1], gender=row[2].strip())
-			  except:
-			  	count += 1
-			  	continue
+				try:
+					ImdbActorInfo.objects.create(actorid=row[0], name=row[1], gender=row[2].strip())
+				except:
+					count += 1
+					continue
 
 		with open("../dataset_p1/mlmovies.csv","rb") as f:
 			rows = csv.reader(f)
@@ -49,11 +49,11 @@ def populate_db():
 				if n == 0:
 					continue
 				row[2] = row[2].replace("|", ",")
-			  try:
-				MlMovies.objects.create(movieid=row[0], moviename=row[1], genres=row[2])
-			  except:
-			  	count += 1
-			  	continue
+				try:
+					MlMovies.objects.create(movieid=row[0], moviename=row[1], genres=row[2])
+				except:
+					count += 1
+					continue
 
 
 		with open("../dataset_p1/mlusers.csv","rb") as f:
@@ -61,22 +61,22 @@ def populate_db():
 			for n, row in enumerate(rows):
 				if n == 0:
 					continue
-			  try:
-				MlUsers.objects.create(userid=row[0])
-			  except:
-			  	count += 1
-			  	continue
+				try:
+					MlUsers.objects.create(userid=row[0])
+				except:
+					count += 1
+					continue
 
 		with open("../dataset_p1/movie-actor.csv","rb") as f:
 			rows = csv.reader(f)
 			for n, row in enumerate(rows):
 				if n == 0:
 					continue
-			  try:
-				MovieActor.objects.create(movieid=row[0], actorid=row[1], actor_movie_rank=row[2])
-			  except:
-			  	count += 1
-			  	continue
+				try:
+					MovieActor.objects.create(movieid=row[0], actorid=row[1], actor_movie_rank=row[2])
+				except:
+					count += 1
+				 continue
 
 		with open("../dataset_p1/mltags.csv","rb") as f:
 			rows = csv.reader(f)
@@ -85,11 +85,11 @@ def populate_db():
 					continue
 				dt = datetime.strptime(str(row[3]), "%m/%d/%Y  %I:%M:%S %p")
 				row[3] = dt.strftime('%s')
-			  try:
-				MlTags.objects.create(userid=row[0], movieid=row[1], tagid=row[2], timestamp=row[3])
-			  except:
-			  	count += 1
-			  	continue
+				try:
+					MlTags.objects.create(userid=row[0], movieid=row[1], tagid=row[2], timestamp=row[3])
+				except:
+					count += 1
+					continue
 
 		with open("../dataset_p1/mlratings.csv","rb") as f:
 			rows = csv.reader(f)
@@ -98,11 +98,11 @@ def populate_db():
 					continue
 				dt = datetime.strptime(str(row[4]), "%m/%d/%Y  %I:%M:%S %p")
 				row[4] = dt.strftime('%s')
-			  try:
-				MlRatings.objects.create(movieid=row[0], userid=row[1], imdbid=row[2], rating=row[3], timestamp=row[4])
-			  except:
-			  	count += 1
-			  	continue
+				try:
+					MlRatings.objects.create(movieid=row[0], userid=row[1], imdbid=row[2], rating=row[3], timestamp=row[4])
+				except:
+					count += 1
+					continue
 		print "Unsuccessful Insertions:", count
 
 
