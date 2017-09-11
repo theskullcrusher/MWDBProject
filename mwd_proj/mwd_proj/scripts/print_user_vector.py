@@ -53,10 +53,13 @@ def main():
 		else:
 		#print tf*idf dict
 			D = Task3.objects.values('userid').distinct().count()
+			#normalize idf too
+			max_ = math.log10(float(D))
 			keys = tf_dict.keys()
 			for tag in keys:
 				count = Task3.objects.filter(tag=tag).count()
 				idf_score = math.log10(float(D)/float(count))
+				idf_score = idf_score / max_
 				tf_dict[tag] *= idf_score
 			sorted_dict = sorted(tf_dict.items(), key=operator.itemgetter(1), reverse=True)
 			print "Sorted TF-IDF tags:\n{}\n\n".format(sorted_dict)	
