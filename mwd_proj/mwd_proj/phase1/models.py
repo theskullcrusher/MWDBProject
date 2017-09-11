@@ -25,13 +25,14 @@ class MovieActor(models.Model):
 	movieid = models.ForeignKey('MlMovies', on_delete=models.CASCADE)
 	actorid = models.ForeignKey('ImdbActorInfo', on_delete=models.CASCADE)
 	actor_movie_rank = models.IntegerField()
+	norm_rank = models.FloatField(blank=True, db_index=True, default=0.0)
 
 class MlTags(models.Model):
 	userid = models.ForeignKey('MlUsers', on_delete=models.CASCADE)
 	movieid = models.ForeignKey('MlMovies', on_delete=models.CASCADE)
 	tagid = models.ForeignKey('GenomeTags', on_delete=models.CASCADE)
 	timestamp = models.BigIntegerField(blank=True)
-	norm_weight = models.FloatField(max_length=256, blank=True, db_index=True, default=0.0)
+	norm_weight = models.FloatField( blank=True, db_index=True, default=0.0)
 
 class MlRatings(models.Model):
 	movieid = models.ForeignKey('MlMovies', on_delete=models.CASCADE)
@@ -39,4 +40,4 @@ class MlRatings(models.Model):
 	imdbid = models.IntegerField(blank=True)
 	rating = models.IntegerField(blank=True)
 	timestamp = models.BigIntegerField( blank=True)
-	norm_weight = models.FloatField(max_length=256, blank=True, db_index=True, default=0.0)
+	norm_weight = models.FloatField(blank=True, db_index=True, default=0.0)
