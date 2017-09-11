@@ -88,7 +88,7 @@ def populate_db():
 					print row
 					continue
 				try:
-					MovieActor.objects.create(movieid=row[0], actorid=row[1], actor_movie_rank=row[2])
+					MovieActor.objects.create(movieid__movieid=row[0], actorid__actorid=row[1], actor_movie_rank=row[2])
 				except:
 					count5 += 1
 					continue
@@ -106,7 +106,7 @@ def populate_db():
 					dt = datetime.strptime(str(row[3]), "%Y-%m-%d %H:%M:%S")
                                         row[3] = int(dt.strftime('%s'))
 				try:
-					MlTags.objects.create(userid=row[0], movieid=row[1], tagid=row[2], timestamp=row[3])
+					MlTags.objects.create(userid__userid=row[0], movieid__movieid=row[1], tagid__tagid=row[2], timestamp=row[3])
 				except:
 					count6 += 1
 					continue
@@ -124,7 +124,7 @@ def populate_db():
                                         dt = datetime.strptime(str(row[4]), "%Y-%m-%d %H:%M:%S")
                                         row[4] = int(dt.strftime('%s'))
 				try:
-					MlRatings.objects.create(movieid=row[0], userid=row[1], imdbid=row[2], rating=row[3], timestamp=row[4])
+					MlRatings.objects.create(movieid_movieid=row[0], userid__userid=row[1], imdbid=row[2], rating=row[3], timestamp=row[4])
 				except:
 					count7 += 1
 					continue
