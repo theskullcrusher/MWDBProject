@@ -45,6 +45,6 @@ class MlRatings(models.Model):
 
 class Task1(models.Model):
 	actorid = models.IntegerField(null=True)
-	tagid = models.TextField(null=True, default='')
+	tag = models.TextField(null=True, default='')
 	score = models.FloatField(null=True)
 

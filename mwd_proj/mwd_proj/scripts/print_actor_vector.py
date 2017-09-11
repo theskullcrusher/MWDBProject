@@ -25,10 +25,10 @@ def tf():
 				for tag in tags:
 					norm_weight = tag.norm_weight
 					score = float(norm_weight * norm_rank)
-					if tag.tag in tf_dict[actor.actorid].keys():
-						tf_dict[actor.actorid][tag.tag] += score
+					if tag.tagid.tag in tf_dict[actor.actorid].keys():
+						tf_dict[actor.actorid][tag.tagid.tag] += score
 					else:
-						tf_dict[actor.actorid][tag.tag] = score
+						tf_dict[actor.actorid][tag.tagid.tag] = score
 			keys = tf_dict[actor.actorid].keys()
 			for key in keys:
 				sc = tf_dict[actor.actorid][key]
