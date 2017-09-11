@@ -4,7 +4,7 @@ import django
 import traceback
 import csv
 import os
-os.environ['DJANGO_SETTINGS_MODULE'] = "mwdb_proj.settings"
+os.environ['DJANGO_SETTINGS_MODULE'] = "mwd_proj.settings"
 django.setup()
 
 
@@ -150,4 +150,5 @@ def populate_db():
 
 if __name__ == "__main__":
 	django.setup()
-	populate_db()
+	#fail safe
+	#populate_db()
