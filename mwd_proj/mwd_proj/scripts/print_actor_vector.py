@@ -13,8 +13,7 @@ import operator
 
 def tf():
 	try:
-		t1 = Task1.objects.all().delete()
-		t1.save()
+		Task1.objects.all().delete()
 		actors = ImdbActorInfo.objects.all()
 		tf_dict = {}
 		for actor in actors:
@@ -22,18 +21,18 @@ def tf():
 			movies = MovieActor.objects.filter(actorid=actor)
 			for movie in movies:
 				norm_rank = 1.0 - movie.norm_rank
-				tags = MlTags.objects.filter(movieid=movie)
+				tags = MlTags.objects.filter(movieid=movie.movieid)
 				for tag in tags:
 					norm_weight = tag.norm_weight
 					score = float(norm_weight * norm_rank)
-					if tag.tagid in tf_dict[actor.actorid].keys():
-						tf_dict[actor.actorid] += score
+					if tag.tag in tf_dict[actor.actorid].keys():
+						tf_dict[actor.actorid][tag.tag] += score
 					else:
-						tf_dict[actor.actorid] = score
+						tf_dict[actor.actorid][tag.tag] = score
 			keys = tf_dict[actor.actorid].keys()
 			for key in keys:
 				sc = tf_dict[actor.actorid][key]
-				Task1.objects.create(actorid=actor.actorid, tagid=key ,score=sc )
+				Task1.objects.create(actorid=actor.actorid, tag=key ,score=sc )
 	except:
 		traceback.print_exc()
 
@@ -51,8 +50,7 @@ def main():
 			actor = ImdbActorInfo.objects.get(actorid=actorid)
 			print "Actor Information: ID-{}, Name-{}, Gender-{}".format(actor.actorid, actor.name, actor.gender)
 			for record in records:
-				tag = GenomeTags.objects.get(tagid=record.tagid)
-				tf_dict[tag.tag] = float(record.score / total)
+				tf_dict[record.tag] = float(record.score / total)
 			sorted_dict = sorted(tf_dict.items(), key=operator.itemgetter(1)).reverse()
 			print "\n Sorted tags:\n{}".format(sorted_dict)
 
