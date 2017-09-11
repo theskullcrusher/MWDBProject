@@ -11,41 +11,46 @@ import traceback
 from django.db.models import Sum
 import operator
 import math
+from django.db.models.functions import Lower
 
 def tf():
 	try:
-		Task1.objects.all().delete()
-		actors = ImdbActorInfo.objects.all()
+		Task2.objects.all().delete()
+		genres = MlMovies.objects.values_list('genres', flat=True)
+		distinct_genres = []
+		for genre in genres:
+			distinct_genres.extend(genre.split(','))
+		distinct_genres = [x.strip() for x in distinct_genres]
+		distinct_genres = list(set(distinct_genres))
+
 		tf_dict = {}
-		for actor in actors:
-			tf_dict[actor.actorid] = {}
-			movies = MovieActor.objects.filter(actorid=actor)
+		for genre in distinct_genres:
+			tf_dict[genre] = {}
+			movies = MlMovies.objects.filter(genres__icontains=genre)
 			for movie in movies:
-				norm_rank = 1.0 - movie.norm_rank
 				tags = MlTags.objects.filter(movieid=movie.movieid)
 				for tag in tags:
 					norm_weight = tag.norm_weight
-					score = float(norm_weight * norm_rank)
-					if tag.tagid.tag in tf_dict[actor.actorid].keys():
-						tf_dict[actor.actorid][tag.tagid.tag] += score
+					score = float(norm_weight)
+					if tag.tagid.tag in tf_dict[genre].keys():
+						tf_dict[genre][tag.tagid.tag] += score
 					else:
-						tf_dict[actor.actorid][tag.tagid.tag] = score
-			keys = tf_dict[actor.actorid].keys()
+						tf_dict[genre][tag.tagid.tag] = score
+			keys = tf_dict[genre].keys()
 			for key in keys:
-				sc = tf_dict[actor.actorid][key]
-				Task1.objects.create(actorid=actor.actorid, tag=key ,score=sc)
+				sc = tf_dict[genre][key]
+				Task2.objects.create(genre=genre, tag=key ,score=sc)
 	except:
 		traceback.print_exc()
 
 def main():
 	try:
-		actorid = int(sys.argv[1])
+		genre = str(sys.argv[1])
 		model = str(sys.argv[2])
-		total = Task1.objects.filter(actorid=actorid).aggregate(Sum('score'))['score__sum']
-		records = Task1.objects.filter(actorid=actorid)
+		total = Task2.objects.filter(genre__icontains=genre).aggregate(Sum('score'))['score__sum']
+		records = Task2.objects.filter(genre__icontains=genre)
 		tf_dict = {}
-		actor = ImdbActorInfo.objects.get(actorid=actorid)
-		print "Actor Information: ID-{}; Name-{}; Gender-{}".format(actor.actorid, actor.name, actor.gender)
+		print "Genre Information: Name-{};".format(genre)
 		for record in records:
 			tf_dict[record.tag] = float(record.score / total)
 		if model.lower().strip() == 'tf':
@@ -54,10 +59,10 @@ def main():
 			print "Sorted TF tags:\n{}\n\n".format(sorted_dict)
 		else:
 		#print tf*idf dict
-			D = Task1.objects.values('actorid').distinct().count()
+			D = Task2.objects.annotate(genre_lower=Lower('genre')).values_list('genre_lower', flat=True).distinct().count()
 			keys = tf_dict.keys()
 			for tag in keys:
-				count = Task1.objects.filter(tag=tag).count()
+				count = Task2.objects.filter(tag=tag).count()
 				idf_score = math.log10(float(D)/float(count))
 				tf_dict[tag] *= idf_score
 			sorted_dict = sorted(tf_dict.items(), key=operator.itemgetter(1), reverse=True)
@@ -74,6 +79,7 @@ def elapsedTime(starttime):
 
 
 if __name__ == "__main__":
-	#tf()
+	tf()
 	main()
+	
 	

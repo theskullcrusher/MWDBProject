@@ -48,3 +48,7 @@ class Task1(models.Model):
 	tag = models.TextField(null=True, default='')
 	score = models.FloatField(null=True)
 
+class Task2(models.Model):
+	genre = models.TextField(null=True, default='')
+	tag = models.TextField(null=True, default='')
+	score = models.FloatField(null=True)
