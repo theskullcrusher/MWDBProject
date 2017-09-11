@@ -37,19 +37,21 @@ class Migration(migrations.Migration):
             name='MlRatings',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('movieid', models.IntegerField()),
+                ('userid', models.IntegerField()),
                 ('imdbid', models.IntegerField(blank=True)),
                 ('rating', models.IntegerField(blank=True)),
                 ('timestamp', models.CharField(max_length=256, blank=True)),
-                ('movieid', models.ForeignKey(to='phase1.MlMovies')),
             ],
         ),
         migrations.CreateModel(
             name='MlTags',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('userid', models.IntegerField()),
+                ('movieid', models.IntegerField()),
+                ('tagid', models.IntegerField()),
                 ('timestamp', models.CharField(max_length=256, blank=True)),
-                ('movieid', models.ForeignKey(to='phase1.MlMovies')),
-                ('tagid', models.ForeignKey(to='phase1.GenomeTags')),
             ],
         ),
         migrations.CreateModel(
@@ -62,19 +64,9 @@ class Migration(migrations.Migration):
             name='MovieActor',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('movieid', models.IntegerField()),
+                ('actorid', models.IntegerField()),
                 ('actor_movie_rank', models.IntegerField()),
-                ('actorid', models.ForeignKey(to='phase1.ImdbActorInfo')),
-                ('movieid', models.ForeignKey(to='phase1.MlMovies')),
             ],
-        ),
-        migrations.AddField(
-            model_name='mltags',
-            name='userid',
-            field=models.ForeignKey(to='phase1.MlUsers'),
-        ),
-        migrations.AddField(
-            model_name='mlratings',
-            name='userid',
-            field=models.ForeignKey(to='phase1.MlUsers'),
         ),
     ]

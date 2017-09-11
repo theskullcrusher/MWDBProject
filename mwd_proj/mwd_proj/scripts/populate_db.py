@@ -31,9 +31,11 @@ def populate_db():
 			rows = csv.reader(f)
 			for n, row in enumerate(rows):
 				if n == 0:
+					print row
 					continue
 				try:
 					GenomeTags.objects.create(tagid=row[0], tag=row[1])
+					pass
 				except:
 					count1 += 1
 					continue
@@ -42,9 +44,11 @@ def populate_db():
 			rows = csv.reader(f)
 			for n, row in enumerate(rows):
 				if n == 0:
+					print row
 					continue
 				try:
 					ImdbActorInfo.objects.create(actorid=row[0], name=row[1], gender=row[2].strip())
+					pass
 				except:
 					count2 += 1
 					continue
@@ -53,10 +57,12 @@ def populate_db():
 			rows = csv.reader(f)
 			for n, row in enumerate(rows):
 				if n == 0:
+					print row
 					continue
 				row[2] = row[2].replace("|", ",")
 				try:
 					MlMovies.objects.create(movieid=row[0], moviename=row[1], genres=row[2])
+					pass
 				except:
 					count3 += 1
 					continue
@@ -66,9 +72,11 @@ def populate_db():
 			rows = csv.reader(f)
 			for n, row in enumerate(rows):
 				if n == 0:
+					print row
 					continue
 				try:
 					MlUsers.objects.create(userid=row[0])
+					pass
 				except:
 					count4 += 1
 					continue
@@ -77,6 +85,7 @@ def populate_db():
 			rows = csv.reader(f)
 			for n, row in enumerate(rows):
 				if n == 0:
+					print row
 					continue
 				try:
 					MovieActor.objects.create(movieid=row[0], actorid=row[1], actor_movie_rank=row[2])
@@ -88,6 +97,7 @@ def populate_db():
 			rows = csv.reader(f)
 			for n, row in enumerate(rows):
 				if n == 0:
+					print row
 					continue
                                 try:
 					dt = datetime.strptime(str(row[3]), "%m/%d/%Y  %I:%M:%S %p")
@@ -105,6 +115,7 @@ def populate_db():
 			rows = csv.reader(f)
 			for n, row in enumerate(rows):
 				if n == 0:
+					print row
 					continue
                                 try:
                                         dt = datetime.strptime(str(row[4]), "%m/%d/%Y  %I:%M:%S %p")

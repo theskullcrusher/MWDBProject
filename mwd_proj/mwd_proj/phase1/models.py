@@ -22,19 +22,19 @@ class MlUsers(models.Model):
 	userid = models.IntegerField(primary_key=True)
 
 class MovieActor(models.Model):
-	movieid = models.ForeignKey('MlMovies', on_delete=models.CASCADE)
-	actorid = models.ForeignKey('ImdbActorInfo', on_delete=models.CASCADE)
+	movieid = models.IntegerField()
+	actorid = models.IntegerField()
 	actor_movie_rank = models.IntegerField()
 
 class MlTags(models.Model):
-	userid = models.ForeignKey('MlUsers', on_delete=models.CASCADE)
-	movieid = models.ForeignKey('MlMovies', on_delete=models.CASCADE)
-	tagid = models.ForeignKey('GenomeTags', on_delete=models.CASCADE)
+	userid = models.IntegerField()
+	movieid = models.IntegerField()
+	tagid = models.IntegerField()
 	timestamp = models.CharField(max_length=256, blank=True)
 
 class MlRatings(models.Model):
-	movieid = models.ForeignKey('MlMovies', on_delete=models.CASCADE)
-	userid = models.ForeignKey('MlUsers', on_delete=models.CASCADE)
+	movieid = models.IntegerField()
+	userid = models.IntegerField()
 	imdbid = models.IntegerField(blank=True)
 	rating = models.IntegerField(blank=True)
 	timestamp = models.CharField(max_length=256, blank=True)
