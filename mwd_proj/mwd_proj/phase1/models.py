@@ -52,3 +52,8 @@ class Task2(models.Model):
 	genre = models.TextField(null=True, default='')
 	tag = models.TextField(null=True, default='')
 	score = models.FloatField(null=True)
+
+class Task3(models.Model):
+	userid = models.IntegerField(null=True)
+	tag = models.TextField(null=True, default='')
+	score = models.FloatField(null=True)
