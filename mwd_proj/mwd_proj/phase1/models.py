@@ -30,13 +30,13 @@ class MlTags(models.Model):
 	userid = models.ForeignKey('MlUsers', on_delete=models.CASCADE)
 	movieid = models.ForeignKey('MlMovies', on_delete=models.CASCADE)
 	tagid = models.ForeignKey('GenomeTags', on_delete=models.CASCADE)
-	timestamp = models.CharField(max_length=256, blank=True)
-	norm_weight = models.CharField(max_length=256, blank=True, db_index=True, default='')
+	timestamp = models.BigIntegerField(blank=True)
+	norm_weight = models.FloatField(max_length=256, blank=True, db_index=True, default=0.0)
 
 class MlRatings(models.Model):
 	movieid = models.ForeignKey('MlMovies', on_delete=models.CASCADE)
 	userid = models.ForeignKey('MlUsers', on_delete=models.CASCADE)
 	imdbid = models.IntegerField(blank=True)
 	rating = models.IntegerField(blank=True)
-	timestamp = models.CharField(max_length=256, blank=True)
-	norm_weight = models.CharField(max_length=256, blank=True, db_index=True, default='')
+	timestamp = models.BigIntegerField( blank=True)
+	norm_weight = models.FloatField(max_length=256, blank=True, db_index=True, default=0.0)
