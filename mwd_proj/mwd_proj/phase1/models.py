@@ -41,3 +41,10 @@ class MlRatings(models.Model):
 	rating = models.IntegerField(blank=True)
 	timestamp = models.BigIntegerField( blank=True)
 	norm_weight = models.FloatField(blank=True, db_index=True, default=0.0)
+
+
+class Task1(models.Model):
+	actorid = models.IntegerField(null=True)
+	tagid = models.IntegerField(null=True)
+	score = models.FloatField(null=True)
+
