@@ -1,6 +1,5 @@
 import time
 import sys, os
-from mwd_proj.phase1.models import *
 from datetime import datetime
 import django
 import traceback
@@ -11,6 +10,7 @@ import traceback
 from django.db.models import Sum
 import operator
 import math
+from mwd_proj.phase1.models import *
 
 def tf():
 	try:
