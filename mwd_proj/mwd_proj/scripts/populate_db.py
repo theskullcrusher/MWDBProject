@@ -1,10 +1,10 @@
-from mwd_proj.phase1.models import *
 from datetime import datetime
 import django
 import traceback
 import csv
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = "mwd_proj.settings"
+from mwd_proj.phase1.models import *
 django.setup()
 
 
