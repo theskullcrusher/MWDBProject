@@ -1,4 +1,4 @@
-import time
+from time import time
 import sys, os
 from datetime import datetime
 import django
@@ -46,6 +46,7 @@ def tf():
 		traceback.print_exc()
 
 def main():
+	"This model takes as input genre and model to give tag vector"
 	try:
 		#initialize dict of all tags
 		tf_dict = {}
@@ -68,13 +69,25 @@ def main():
 			for value in sorted_dict:
 				print value
 		else:
-			#print tf*idf dict
-			D = Task2.objects.annotate(genre_lower=Lower('genre')).values_list('genre_lower', flat=True).distinct().count()
+			#Calculate total D which is visualized as distinct no of (movie,genre) pairs
+			genres = MlMovies.objects.values_list('genres', flat=True)
+			distinct_genres = []
+			for genre in genres:
+				distinct_genres.extend(genre.split(','))
+			distinct_genres = [x.strip() for x in distinct_genres]
+			distinct_genres = list(set(distinct_genres))
+			D = 0
+			for genre in distinct_genres:
+				D += MlMovies.objects.filter(genres__icontains=genre).count()
+			#D = Task2.objects.annotate(genre_lower=Lower('genre')).values_list('genre_lower', flat=True).distinct().count()
+			#print D
 			#normalize idf too
 			max_ = math.log10(float(D))
 			keys = tf_dict.keys()
 			for tag in keys:
-				count = Task2.objects.filter(tag=tag).count()
+				tagobj = GenomeTags.objects.get(tag=tag)
+				count = MlTags.objects.filter(tagid=tagobj).aggregate(Sum('norm_weight'))['norm_weight__sum']
+				#count = Task2.objects.filter(tag=tag).count()
 				idf_score = math.log10(float(D)/float(count))
 				idf_score = idf_score / max_
 				tf_dict[tag] *= idf_score
@@ -90,11 +103,14 @@ def elapsedTime(starttime):
 	elapsed = (time() - starttime)
 	minu = int(elapsed) / 60
 	sec = elapsed % 60
-	print "Elapsed time is min:",str(minu)," sec:",str(sec)
+	print "\nElapsed time is min:",str(minu)," sec:",str(sec)
 
 
 if __name__ == "__main__":
 	#tf()
+	starttime = time()
 	main()
+	elapsedTime(starttime)
+
 	
 	

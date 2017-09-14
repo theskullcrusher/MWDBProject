@@ -11,7 +11,7 @@ django.setup()
 def populate_db():
 	"Populate the db"
 	try:
-		pass
+		#count for unsucessful record insertions for each table
 		count1 = 0
 		count2 = 0
 		count3 = 0
@@ -150,5 +150,4 @@ def populate_db():
 
 if __name__ == "__main__":
 	django.setup()
-	#fail safe
-	#populate_db()
+	populate_db()

@@ -1,4 +1,4 @@
-import time
+from time import time
 import sys, os
 from datetime import datetime
 import django
@@ -39,6 +39,7 @@ def tf():
 		traceback.print_exc()
 
 def main():
+	"This model takes as input userid and model to give tag vector"
 	try:
 		tf_dict = {}
 		all_tags_ = GenomeTags.objects.values_list('tag', flat=True)
@@ -83,9 +84,11 @@ def elapsedTime(starttime):
 	elapsed = (time() - starttime)
 	minu = int(elapsed) / 60
 	sec = elapsed % 60
-	print "Elapsed time is min:",str(minu)," sec:",str(sec)
+	print "\nElapsed time is min:",str(minu)," sec:",str(sec)
 
 
 if __name__ == "__main__":
 	#tf()
+	starttime = time()
 	main()
+	elapsedTime(starttime)

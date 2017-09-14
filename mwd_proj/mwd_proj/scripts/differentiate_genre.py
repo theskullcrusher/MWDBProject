@@ -1,4 +1,4 @@
-import time
+from time import time
 import sys, os
 from datetime import datetime
 import django
@@ -47,6 +47,7 @@ def tf():
 		traceback.print_exc()
 
 def main():
+	"This method calculates the diff between 2 genres using one of the 3 input models"
 	try:
 		genre1 = str(sys.argv[1])
 		genre2 = str(sys.argv[2])
@@ -118,11 +119,11 @@ def elapsedTime(starttime):
 	elapsed = (time() - starttime)
 	minu = int(elapsed) / 60
 	sec = elapsed % 60
-	print "Elapsed time is min:",str(minu)," sec:",str(sec)
+	print "\nElapsed time is min:",str(minu)," sec:",str(sec)
 
 
 if __name__ == "__main__":
 	#tf()
+	starttime = time()
 	main()
-	
-	
+	elapsedTime(starttime)

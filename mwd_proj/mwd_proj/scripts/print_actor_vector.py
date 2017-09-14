@@ -1,4 +1,4 @@
-import time
+from time import time
 import sys, os
 from datetime import datetime
 import django
@@ -34,11 +34,12 @@ def tf():
 			keys = tf_dict[actor.actorid].keys()
 			for key in keys:
 				sc = tf_dict[actor.actorid][key]
-				Task1.objects.create(actorid=actor.actorid, tag=key ,score=sc)
+				Task1.objects.create(actorid=actor.actorid, tag=key, score=sc)
 	except:
 		traceback.print_exc()
 
 def main():
+	"This model takes as input actorid and model to give tag vector"
 	try:
 		#initialize dict of all tags
 		tf_dict = {}
@@ -63,7 +64,8 @@ def main():
 				print value
 		else:
 			#print tf*idf dict
-			D = ImdbActorInfo.objects.values('actorid').distinct().count()
+			D = MovieActor.objects.values('actorid','movieid').distinct().count()
+			#print D
 			#D = Task1.objects.values('actorid').distinct().count()
 			#normalize idf too
 			max_ = math.log10(float(D))
@@ -87,10 +89,12 @@ def elapsedTime(starttime):
 	elapsed = (time() - starttime)
 	minu = int(elapsed) / 60
 	sec = elapsed % 60
-	print "Elapsed time is min:",str(minu)," sec:",str(sec)
+	print "\nElapsed time is min:",str(minu)," sec:",str(sec)
 
 
 if __name__ == "__main__":
 	#tf()
+	starttime = time()
 	main()
+	elapsedTime(starttime)
 	
