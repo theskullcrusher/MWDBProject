@@ -62,13 +62,15 @@ def main():
 				print value
 
 		else:
-			#print tf*idf dict
-			D = Task3.objects.values('userid').distinct().count()
+			#Calculate total D which is visualized as distinct no of (movie,user) pairs
+			D = MlTags.objects.values('userid','movieid').distinct().count()
+			#print D
 			#normalize idf too
 			max_ = math.log10(float(D))
 			keys = tf_dict.keys()
 			for tag in keys:
-				count = Task3.objects.filter(tag=tag).count()
+				tagobj = GenomeTags.objects.get(tag=tag)
+				count = MlTags.objects.filter(tagid=tagobj).aggregate(Sum('norm_weight'))['norm_weight__sum']				
 				idf_score = math.log10(float(D)/float(count))
 				idf_score = idf_score / max_
 				tf_dict[tag] *= idf_score
