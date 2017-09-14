@@ -15,6 +15,7 @@ from mwd_proj.phase1.models import *
 
 
 def tf():
+	"This method prepopulates meta table for this task name Task<number> for faster processing of tf"
 	try:
 		Task2.objects.all().delete()
 		genres = MlMovies.objects.values_list('genres', flat=True)
@@ -46,20 +47,28 @@ def tf():
 
 def main():
 	try:
+		#initialize dict of all tags
+		tf_dict = {}
+		all_tags_ = GenomeTags.objects.values_list('tag', flat=True)
+		for tag in all_tags_:
+			tf_dict[tag] = 0.0
+
 		genre = str(sys.argv[1])
 		model = str(sys.argv[2])
 		total = Task2.objects.filter(genre__icontains=genre).aggregate(Sum('score'))['score__sum']
 		records = Task2.objects.filter(genre__icontains=genre)
-		tf_dict = {}
+#		tf_dict = {}
 		print "Genre Information: Name-{};".format(genre)
 		for record in records:
 			tf_dict[record.tag] = float(record.score / total)
 		if model.lower().strip() == 'tf':
-		#print tf_dict
+			#print tf_dict
 			sorted_dict = sorted(tf_dict.items(), key=operator.itemgetter(1), reverse=True)
-			print "Sorted TF tags:\n{}\n\n".format(sorted_dict)
+			print "Sorted TF tags:\n"
+			for value in sorted_dict:
+				print value
 		else:
-		#print tf*idf dict
+			#print tf*idf dict
 			D = Task2.objects.annotate(genre_lower=Lower('genre')).values_list('genre_lower', flat=True).distinct().count()
 			#normalize idf too
 			max_ = math.log10(float(D))
@@ -70,7 +79,9 @@ def main():
 				idf_score = idf_score / max_
 				tf_dict[tag] *= idf_score
 			sorted_dict = sorted(tf_dict.items(), key=operator.itemgetter(1), reverse=True)
-			print "Sorted TF-IDF tags:\n{}\n\n".format(sorted_dict)	
+			print "Sorted TF-IDF tags:\n"
+			for value in sorted_dict:
+				print value
 	except Exception as e:
 		traceback.print_exc()
 
