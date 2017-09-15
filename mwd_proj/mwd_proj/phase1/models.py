@@ -62,3 +62,4 @@ class Task4(models.Model):
 	genre = models.TextField(null=True, default='')
 	tag = models.TextField(null=True, default='')
 	score = models.FloatField(null=True)
+	movie_count = models.IntegerField(default=0)
