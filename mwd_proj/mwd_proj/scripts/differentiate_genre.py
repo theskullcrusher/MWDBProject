@@ -12,7 +12,7 @@ import operator
 import math
 from django.db.models.functions import Lower
 from mwd_proj.phase1.models import *
-
+from django.db.models import Q
 
 def tf():
 	"This method prepopulates meta table for this task name Task<number> for faster processing of tf"
@@ -74,43 +74,60 @@ def main():
 		all_tags = tf_dict1.keys()
 		all_tags.extend(tf_dict2.keys())
 		all_tags = list(set(all_tags))
-		#initiatise combined dict
-		tf_dict = {}
-
-		#Is A-B = B-A??. Current i've taken this condition to be true
-		for tag in all_tags:
-			tf_dict[tag] = 0.0
-		#tf_dict diff score
-		for tag in tf_dict1.keys():
-			if tag in tf_dict2:
-				tf_dict[tag] = abs(tf_dict1[tag] - tf_dict2[tag])
-			else:
-				tf_dict[tag] = abs(tf_dict1[tag])
-
-		#for tags in tf_dict2 bt not in tf_dict1
-		for tag in tf_dict2.keys():
-			if tag not in tf_dict1:
-				tf_dict[tag] = abs(tf_dict2[tag])
 		
+		#initiatise combined dict
+		#Is A-B = B-A??. Current i've taken this condition to be true
+		tf_dict = {}
+		all_tags_ = GenomeTags.objects.values_list('tag', flat=True)
+		for tag in all_tags_:
+			tf_dict[tag] = 0.0		
+
 		if model.lower().strip() == 'tf-idf-diff':
-			D = Task4.objects.annotate(genre_lower=Lower('genre')).values_list('genre_lower', flat=True).distinct().count()
+			#TF_IDF_DIFF model
+			D = MlMovies.objects.filter(reduce(operator.or_, (Q(genres__icontains=x) for x in [genre1, genre2]))).count()
+			#D = Task4.objects.annotate(genre_lower=Lower('genre')).values_list('genre_lower', flat=True).distinct().count()
+			#normalize idf too
+			max_ = math.log10(float(D))
 
-			#normalize idf too, here not being down because min will be different and not 0
-			#max_ = math.log10(float(D))
-
-			for tag in all_tags:
-				count = Task4.objects.filter(tag=tag).count()
+			#calculate tfidf score for tf_dict1
+			for tag in tf_dict1.keys():
+				tagobj = GenomeTags.objects.get(tag=tag)
+				count = MlTags.objects.filter(tagid=tagobj).aggregate(Sum('norm_weight'))['norm_weight__sum']
+				#count = Task4.objects.filter(tag=tag).count()
 				idf_score = math.log10(float(D)/float(count))
-			#	idf_score = idf_score / max_
-				tf_dict[tag] *= idf_score
+				idf_score = idf_score / max_
+				tf_dict1[tag] *= idf_score
+
+			#calculate tfidf score for tf_dict1
+			for tag in tf_dict2.keys():
+				tagobj = GenomeTags.objects.get(tag=tag)
+				count = MlTags.objects.filter(tagid=tagobj).aggregate(Sum('norm_weight'))['norm_weight__sum']
+				#count = Task4.objects.filter(tag=tag).count()
+				idf_score = math.log10(float(D)/float(count))
+				idf_score = idf_score / max_
+				tf_dict2[tag] *= idf_score
+
+			#tf_dict final diff score
+			for tag in tf_dict1.keys():
+				if tag in tf_dict2:
+					tf_dict[tag] = abs(tf_dict1[tag] - tf_dict2[tag])
+				else:
+					tf_dict[tag] = abs(tf_dict1[tag])
+			#for tags in tf_dict2 bt not in tf_dict1
+			for tag in tf_dict2.keys():
+				if tag not in tf_dict1:
+					tf_dict[tag] = abs(tf_dict2[tag])
+
 			sorted_dict = sorted(tf_dict.items(), key=operator.itemgetter(1), reverse=True)
 			print "Sorted TF-IDF-DIFF tags:\n"
 			for value in sorted_dict:
 				print value
-		elif True:
+
+		elif model.lower().strip() == 'p-diff1':
 			pass
 		else:
 			pass
+
 	except Exception as e:
 		traceback.print_exc()
 

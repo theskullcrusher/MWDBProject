@@ -12,7 +12,7 @@ import operator
 import math
 from django.db.models.functions import Lower
 from mwd_proj.phase1.models import *
-
+from django.db.models import Q
 
 def tf():
 	"This method prepopulates meta table for this task name Task<number> for faster processing of tf"
@@ -76,9 +76,9 @@ def main():
 				distinct_genres.extend(genre.split(','))
 			distinct_genres = [x.strip() for x in distinct_genres]
 			distinct_genres = list(set(distinct_genres))
-			D = 0
-			for genre in distinct_genres:
-				D += MlMovies.objects.filter(genres__icontains=genre).count()
+			# D = 0
+			# for genre in distinct_genres:
+			D = MlMovies.objects.filter(reduce(operator.or_, (Q(genres__icontains=x) for x in distinct_genres))).count()
 			#D = Task2.objects.annotate(genre_lower=Lower('genre')).values_list('genre_lower', flat=True).distinct().count()
 			#print D
 			#normalize idf too
