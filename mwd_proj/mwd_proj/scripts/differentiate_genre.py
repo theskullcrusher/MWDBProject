@@ -24,7 +24,7 @@ def tf():
 			distinct_genres.extend(genre.split(','))
 		distinct_genres = [x.strip() for x in distinct_genres]
 		distinct_genres = list(set(distinct_genres))
-		print distinct_genres
+		#print distinct_genres
 
 		tf_dict = {}
 		for genre in distinct_genres:
@@ -65,7 +65,7 @@ def pdiff1(genre1, genre2, tags, tf_dict):
 			val = 1
 		if val <= 0:
 			val = 0.001
-		print val
+		#print val
 		tf_dict[tag] = math.log10(val) * abs((r1j/R) - ((m1j-r1j)/(M-R)))
 	
 	sorted_dict = sorted(tf_dict.items(), key=operator.itemgetter(1), reverse=True)
@@ -93,7 +93,7 @@ def pdiff2(genre1, genre2, tags, tf_dict):
 			val = 1
 		if val <= 0:
 			val = 0.001
-		print val
+		#print val
 		tf_dict[tag] = math.log10(val) * abs((r1j/R) - ((m1j-r1j)/(M-R)))
 	
 	sorted_dict = sorted(tf_dict.items(), key=operator.itemgetter(1), reverse=True)
@@ -196,7 +196,7 @@ def elapsedTime(starttime):
 
 
 if __name__ == "__main__":
-	#tf()
+	tf()
 	starttime = time()
 	main()
 	elapsedTime(starttime)

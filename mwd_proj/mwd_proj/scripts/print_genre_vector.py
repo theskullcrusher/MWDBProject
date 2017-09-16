@@ -62,6 +62,7 @@ def main():
 		print "Genre Information: Name-{};".format(genre)
 		for record in records:
 			tf_dict[record.tag] = float(record.score / total)
+			#print record.score, total
 		if model.lower().strip() == 'tf':
 			#print tf_dict
 			sorted_dict = sorted(tf_dict.items(), key=operator.itemgetter(1), reverse=True)
@@ -107,7 +108,7 @@ def elapsedTime(starttime):
 
 
 if __name__ == "__main__":
-	#tf()
+	tf()
 	starttime = time()
 	main()
 	elapsedTime(starttime)
