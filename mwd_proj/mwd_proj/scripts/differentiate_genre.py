@@ -140,24 +140,27 @@ def main():
 
 		if model.lower().strip() == 'tf-idf-diff':
 			#TF_IDF_DIFF model
-			D = MlMovies.objects.filter(reduce(operator.or_, (Q(genres__icontains=x) for x in [genre1, genre2]))).count()
+			movies = MlMovies.objects.filter(reduce(operator.or_, (Q(genres__icontains=x) for x in [genre1, genre2])))
+			D = movies.count()
 			#D = Task4.objects.annotate(genre_lower=Lower('genre')).values_list('genre_lower', flat=True).distinct().count()
 			#normalize idf too
 			max_ = math.log10(float(D))
 
 			#calculate tfidf score for tf_dict1
+			movies1 = MlMovies.objects.filter(Q(genres__icontains=genre1))
 			for tag in tf_dict1.keys():
 				tagobj = GenomeTags.objects.get(tag=tag)
-				count = MlTags.objects.filter(tagid=tagobj).aggregate(Sum('norm_weight'))['norm_weight__sum']
+				count = MlTags.objects.filter(reduce(operator.or_, (Q(movieid=x) for x in movies1)), tagid=tagobj).aggregate(Sum('norm_weight'))['norm_weight__sum']
 				#count = Task4.objects.filter(tag=tag).count()
 				idf_score = math.log10(float(D)/float(count))
 				idf_score = idf_score / max_
 				tf_dict1[tag] *= idf_score
 
-			#calculate tfidf score for tf_dict1
+			#calculate tfidf score for tf_dict2
+			movies2 = MlMovies.objects.filter(Q(genres__icontains=genre2))
 			for tag in tf_dict2.keys():
 				tagobj = GenomeTags.objects.get(tag=tag)
-				count = MlTags.objects.filter(tagid=tagobj).aggregate(Sum('norm_weight'))['norm_weight__sum']
+				count = MlTags.objects.filter(reduce(operator.or_, (Q(movieid=x) for x in movies2)), tagid=tagobj).aggregate(Sum('norm_weight'))['norm_weight__sum']
 				#count = Task4.objects.filter(tag=tag).count()
 				idf_score = math.log10(float(D)/float(count))
 				idf_score = idf_score / max_
@@ -165,13 +168,14 @@ def main():
 
 			#tf_dict final diff score
 			for tag in tf_dict1.keys():
-				if tag in tf_dict2:
+				if tag in tf_dict2.keys():
 					tf_dict[tag] = abs(tf_dict1[tag] - tf_dict2[tag])
+					#print tag
 				else:
 					tf_dict[tag] = abs(tf_dict1[tag])
 			#for tags in tf_dict2 bt not in tf_dict1
 			for tag in tf_dict2.keys():
-				if tag not in tf_dict1:
+				if tag not in tf_dict1.keys():
 					tf_dict[tag] = abs(tf_dict2[tag])
 
 			sorted_dict = sorted(tf_dict.items(), key=operator.itemgetter(1), reverse=True)
@@ -196,7 +200,7 @@ def elapsedTime(starttime):
 
 
 if __name__ == "__main__":
-	#tf()
+	tf()
 	starttime = time()
 	main()
 	elapsedTime(starttime)

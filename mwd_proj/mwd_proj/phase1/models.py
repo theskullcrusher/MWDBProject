@@ -42,7 +42,6 @@ class MlRatings(models.Model):
 	timestamp = models.BigIntegerField( blank=True)
 	norm_weight = models.FloatField(blank=True, db_index=True, default=0.0)
 
-
 class Task1(models.Model):
 	actorid = models.IntegerField(null=True)
 	tag = models.TextField(null=True, default='')
