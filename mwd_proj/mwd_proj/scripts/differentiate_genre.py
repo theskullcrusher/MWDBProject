@@ -14,6 +14,7 @@ from django.db.models.functions import Lower
 from mwd_proj.phase1.models import *
 from django.db.models import Q
 
+
 def tf():
 	"This method prepopulates meta table for this task name Task<number> for faster processing of tf"
 	try:
@@ -49,28 +50,38 @@ def tf():
 
 def pdiff1(genre1, genre2, tags, tf_dict):
 	"Calculates pdiff1 for the 2 genre provided"
-	R = MlMovies.objects.filter(genres__icontains=genre1).count()
-	M = MlMovies.objects.filter(reduce(operator.or_, (Q(genres__icontains=x) for x in [genre1, genre2]))).count()
+	R = MlMovies.objects.filter(genres__icontains=genre1).values_list('movieid', flat=True).distinct().count()
+	M = MlMovies.objects.filter(reduce(operator.or_, (Q(genres__icontains=x) for x in [genre1, genre2]))).values_list('movieid', flat=True).distinct().count()
 
 	movies1 = MlMovies.objects.filter(genres__icontains=genre1)
-	movies2 = MlMovies.objects.filter(genres__icontains=genre2)
+	movies2 = MlMovies.objects.filter(reduce(operator.or_, (Q(genres__icontains=x) for x in [genre1, genre2])))
 	for tag in tags:
 		tagid = GenomeTags.objects.get(tag=tag)
 		r1j = MlTags.objects.filter(Q(tagid=tagid) & reduce(operator.or_, (Q(movieid=x) for x in movies1))).count()
 		m1j = MlTags.objects.filter(Q(tagid=tagid) & reduce(operator.or_, (Q(movieid=x) for x in movies2))).count()
-		#print r1j, m1j, tagid.tagid
+		#print r1j, m1j, tagid.tagid, M, R
 		try:
-			val = (r1j/(R-r1j)/(m1j-r1j)/(M-R+r1j-m1j))
-		except:
-			val = 1
-		if val <= 0:
-			val = 0.001
-		#print val
-		tf_dict[tag] = math.log10(val) * abs((r1j/R) - ((m1j-r1j)/(M-R)))
+			if m1j - r1j != 0:
+				val = (float(r1j*(M-R+r1j-m1j))/float((R-r1j)*(m1j-r1j)))
+			else:
+				val = 0.0
+		except Exception as e:
+			val = 0.0
+			#print e
+ 		
+ 		#print val
+		#val = abs(val)
+		if val == 0.0:
+			tf_dict[tag] = 0.0
+		else:
+			val1 = abs((float(r1j)/float(R)) - (float(m1j-r1j)/float(M-R)))
+			#print val1
+			tf_dict[tag] = math.log10(val) * val1
 	
 	sorted_dict = sorted(tf_dict.items(), key=operator.itemgetter(1), reverse=True)
 	print "Sorted P-DIFF1 tags:\n"
 	for value in sorted_dict:
+		#pass
 		print value
 
 
@@ -88,13 +99,22 @@ def pdiff2(genre1, genre2, tags, tf_dict):
 		m1j = len(movies) - MlTags.objects.filter(Q(tagid=tagid) & reduce(operator.or_, (Q(movieid=x) for x in movies))).count()
 		#print r1j, m1j, tagid.tagid
 		try:
-			val = (r1j/(R-r1j)/(m1j-r1j)/(M-R+r1j-m1j))
-		except:
-			val = 1
-		if val <= 0:
-			val = 0.001
-		#print val
-		tf_dict[tag] = math.log10(val) * abs((r1j/R) - ((m1j-r1j)/(M-R)))
+			if m1j - r1j != 0:
+				val = (float(r1j*(M-R+r1j-m1j))/float((R-r1j)*(m1j-r1j)))
+			else:
+				val = 0.0
+		except Exception as e:
+			val = 0.0
+			#print e
+
+ 		#print val
+		#val = abs(val)
+		if val == 0.0:
+			tf_dict[tag] = 0.0
+		else:
+			val1 = abs((float(r1j)/float(R)) - (float(m1j-r1j)/float(M-R)))
+			#print val1
+			tf_dict[tag] = math.log10(val) * val1
 	
 	sorted_dict = sorted(tf_dict.items(), key=operator.itemgetter(1), reverse=True)
 	print "Sorted P-DIFF2 tags:\n"
@@ -200,7 +220,7 @@ def elapsedTime(starttime):
 
 
 if __name__ == "__main__":
-	tf()
+	#tf()
 	starttime = time()
 	main()
 	elapsedTime(starttime)
