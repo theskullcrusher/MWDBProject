@@ -9,6 +9,7 @@ from django.db.models import Max, Min
 from mwd_proj.phase1.models import *
 
 def normalize_tables():
+	"This method normalizes all timestamp and actor_movie_rank values"
 	max_val = long(MlRatings.objects.all().aggregate(Max('timestamp'))['timestamp__max'])
 	min_val = long(MlRatings.objects.all().aggregate(Min('timestamp'))['timestamp__min'])
 	max_val = max_val + 1

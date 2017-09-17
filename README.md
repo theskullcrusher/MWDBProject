@@ -45,7 +45,7 @@ Now here all tasks1 to task4 have a method called tf() which is commented in the
 
 3. Instructions for testing all 4 tasks:
 Task1: To test task 1 run the command: (in the MWDBProject/mwd_proj/med_proj/scripts directory)
-<actor-id> eg: 1575755, 506840
+<actor-id> eg: 1575755, 506840, 
 <model> eg: TF, TF-IDF
 
 > python print_actor_vector.py <actor-id> <model>  #eg:  python print_actor_vector.py 506840 TF
@@ -59,7 +59,7 @@ Task2: To test task 2 run the command: (in the MWDBProject/mwd_proj/med_proj/scr
 
 
 Task3: To test task 3 run the command: (in the MWDBProject/mwd_proj/med_proj/scripts directory)
-<userid> eg: 1988
+<userid> eg: 146, 9316, 1988, 30167
 <model> eg: TF, TF-IDF
 
 > python print_user_vector.py <userid> <model>  #eg:  python print_user_vector.py 1988 TF

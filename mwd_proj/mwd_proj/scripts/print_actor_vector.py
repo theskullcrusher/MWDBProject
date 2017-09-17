@@ -93,7 +93,7 @@ def elapsedTime(starttime):
 
 
 if __name__ == "__main__":
-	tf()
+	#tf()
 	starttime = time()
 	main()
 	elapsedTime(starttime)

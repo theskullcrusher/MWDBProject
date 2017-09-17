@@ -23,7 +23,7 @@ def tf():
 			tf_dict[user.userid] = {}
 			movies = MlTags.objects.filter(userid=user)
 			for movie in movies:
-				tags = MlTags.objects.filter(movieid=movie.movieid)
+				tags = MlTags.objects.filter(movieid=movie.movieid, userid=user.userid)
 				for tag in tags:
 					norm_weight = tag.norm_weight
 					score = float(norm_weight)
@@ -90,7 +90,7 @@ def elapsedTime(starttime):
 
 
 if __name__ == "__main__":
-	tf()
+	#tf()
 	starttime = time()
 	main()
 	elapsedTime(starttime)
