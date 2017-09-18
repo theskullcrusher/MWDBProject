@@ -95,8 +95,8 @@ def pdiff2(genre1, genre2, tags, tf_dict):
 	movies = movies1 | movies2
 	for tag in tags:
 		tagid = GenomeTags.objects.get(tag=tag)
-		r1j = len(movies2) - MlTags.objects.filter(Q(tagid=tagid) & reduce(operator.or_, (Q(movieid=x) for x in movies2))).count()
-		m1j = len(movies) - MlTags.objects.filter(Q(tagid=tagid) & reduce(operator.or_, (Q(movieid=x) for x in movies))).count()
+		r1j = len(movies2) - MlTags.objects.filter(~Q(tagid=tagid) & reduce(operator.or_, (Q(movieid=x) for x in movies2))).count()
+		m1j = len(movies) - MlTags.objects.filter(~Q(tagid=tagid) & reduce(operator.or_, (Q(movieid=x) for x in movies))).count()
 		#print r1j, m1j, tagid.tagid
 		try:
 			if m1j - r1j != 0:
@@ -189,14 +189,14 @@ def main():
 			#tf_dict final diff score
 			for tag in tf_dict1.keys():
 				if tag in tf_dict2.keys():
-					tf_dict[tag] = abs(tf_dict1[tag] - tf_dict2[tag])
+					tf_dict[tag] = tf_dict1[tag] - tf_dict2[tag]
 					#print tag
 				else:
-					tf_dict[tag] = abs(tf_dict1[tag])
+					tf_dict[tag] = tf_dict1[tag]
 			#for tags in tf_dict2 bt not in tf_dict1
 			for tag in tf_dict2.keys():
 				if tag not in tf_dict1.keys():
-					tf_dict[tag] = abs(tf_dict2[tag])
+					tf_dict[tag] = tf_dict2[tag]
 
 			sorted_dict = sorted(tf_dict.items(), key=operator.itemgetter(1), reverse=True)
 			print "Sorted TF-IDF-DIFF tags:\n"
