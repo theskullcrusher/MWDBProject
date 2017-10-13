@@ -29,7 +29,7 @@ class MovieActor(models.Model):
 	norm_rank = models.FloatField(blank=True, db_index=True, default=0.0)
 
 class MlTags(models.Model):
-	userid = models.ForeignKey('MlUsers', on_delete=models.CASCADE)
+	userid = models.IntegerField(null=True)
 	movieid = models.ForeignKey('MlMovies', on_delete=models.CASCADE)
 	tagid = models.ForeignKey('GenomeTags', on_delete=models.CASCADE)
 	timestamp = models.BigIntegerField(blank=True)
