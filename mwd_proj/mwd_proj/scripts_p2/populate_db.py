@@ -108,7 +108,12 @@ def populate_db():
 					dt = datetime.strptime(str(row[3]), "%Y-%m-%d %H:%M:%S")
 					row[3] = int(dt.strftime('%s'))
 				try:
-					#row[0] = MlUsers.objects.get(userid=row[0])
+					ob = MlUsers.objects.filter(userid=row[0]).first()
+					if ob == None:
+						row[0] = MlUsers.objects.create(userid=int(row[0]))
+						row[0].save()
+					else:
+						row[0] = ob
 					row[1] = MlMovies.objects.get(movieid = row[1])
 					row[2] = GenomeTags.objects.get(tagid=row[2])
 					MlTags.objects.create(userid=row[0], movieid=row[1], tagid=row[2], timestamp=row[3])

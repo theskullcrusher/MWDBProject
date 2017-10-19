@@ -29,7 +29,7 @@ class MovieActor(models.Model):
 	norm_rank = models.FloatField(blank=True, db_index=True, default=0.0)
 
 class MlTags(models.Model):
-	userid = models.IntegerField(null=True)
+	userid = models.ForeignKey('MlUsers', on_delete=models.CASCADE, null=True)
 	movieid = models.ForeignKey('MlMovies', on_delete=models.CASCADE)
 	tagid = models.ForeignKey('GenomeTags', on_delete=models.CASCADE)
 	timestamp = models.BigIntegerField(blank=True)
@@ -63,3 +63,8 @@ class Task4(models.Model):
 	tag = models.TextField(null=True, default='')
 	score = models.FloatField(null=True)
 	movie_count = models.IntegerField(default=0)
+
+class Task5(models.Model):
+	genre = models.TextField(null=True, default='')
+	actorid = models.IntegerField(blank=True)
+	score = models.FloatField(null=True)

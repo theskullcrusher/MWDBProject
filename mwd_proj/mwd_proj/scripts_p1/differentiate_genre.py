@@ -5,7 +5,7 @@ import django
 import traceback
 os.environ['DJANGO_SETTINGS_MODULE']="mwd_proj.settings"
 django.setup()
-from mwd_proj.utils.utils import *
+from mwd_proj.utils.utils1 import *
 import traceback
 from django.db.models import Sum
 import operator
