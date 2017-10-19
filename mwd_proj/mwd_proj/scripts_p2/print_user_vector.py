@@ -40,7 +40,7 @@ def tf():
 		traceback.print_exc()
 
 def main(userid):
-	"This model takes as input userid and model to give tag vector"
+	"This model takes as input userid to give tfidf tag vector"
 	try:
 		#tf()
 		tf_dict = {}

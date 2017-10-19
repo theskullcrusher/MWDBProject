@@ -38,27 +38,39 @@ def tf():
 	except:
 		traceback.print_exc()
 
-def main(actorid):
-	"This model takes as input actorid and model to give tag vector"
+def main(actorid, flag=1):
+	"This model takes as input actorid to give tfidf tag vector"
 	try:
-		tf()
+		#tf()
 		#initialize dict of all tags
 		tf_dict = {}
-		all_tags_ = GenomeTags.objects.values_list('tag', flat=True)
+
+		if flag == 0:
+			all_tags_ = GenomeTags.objects.values_list('tag', flat=True)
+		else:
+			all_tags_ = GenomeTags.objects.values_list('tagid', flat=True)	
 		for tag in all_tags_:
 			tf_dict[tag] = 0.0
+
 
 		actorid = int(actorid)
 		total = Task1.objects.filter(actorid=actorid).aggregate(Sum('score'))['score__sum']
 		records = Task1.objects.filter(actorid=actorid)
 		actor = ImdbActorInfo.objects.get(actorid=actorid)
-		max_val = float(Task1.objects.filter(actorid=actorid).aggregate(Max('score'))['score__max'])
+		try:
+			max_val = float(Task1.objects.filter(actorid=actorid).aggregate(Max('score'))['score__max'])
+		except:
+			return tf_dict
 		if max_val == float(0.0):
 			max_val == 0.001
 		if total == float(0.0):
 			total == 0.001
 		for record in records:
-			tf_dict[record.tag] = 0.5 + 0.5*(float(record.score / total) / max_val)
+			if flag == 0:
+				tf_dict[record.tag] = 0.5 + 0.5*(float(record.score / total) / max_val)
+			else:
+				_tag_id = (GenomeTags.objects.filter(tag=record.tag)[0]).tagid
+				tf_dict[_tag_id] = 0.5 + 0.5*(float(record.score / total) / max_val)
 		
 		D = MovieActor.objects.values('actorid','movieid').distinct().count()
 		#print D
@@ -67,7 +79,10 @@ def main(actorid):
 		max_ = math.log10(float(D))
 		keys = tf_dict.keys()
 		for tag in keys:
-			tagobj = GenomeTags.objects.get(tag=tag)
+			if flag == 0:
+				tagobj = GenomeTags.objects.get(tag=tag)
+			else:
+				tagobj = GenomeTags.objects.get(tagid=tag)
 			count = MlTags.objects.filter(tagid=tagobj).aggregate(Sum('norm_weight'))['norm_weight__sum']
 			idf_score = math.log10(float(D)/float(count))
 			idf_score = idf_score / max_

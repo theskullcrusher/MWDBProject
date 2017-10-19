@@ -30,7 +30,7 @@ def tf():
 			tf_dict[genre] = {}
 			movies = MlMovies.objects.filter(genres__icontains=genre)
 			for movie in movies:
-				tags = MlTags.objects.filter(movieid=movie.movieid)
+				tags = MlTags.objects.filter(movieid=movie)
 				for tag in tags:
 					norm_weight = tag.norm_weight
 					score = float(norm_weight)
@@ -46,7 +46,7 @@ def tf():
 		traceback.print_exc()
 
 def main(genre, flag=0):
-	"This model takes as input genre and model to give tag vector"
+	"This model takes as input genre  to give tfidf tag vector"
 	try:
 		tf()
 		#initialize dict of all tags
@@ -60,7 +60,10 @@ def main(genre, flag=0):
 
 		total = Task2.objects.filter(genre__icontains=genre).aggregate(Sum('score'))['score__sum']
 		records = Task2.objects.filter(genre__icontains=genre)
-		max_val = float(Task2.objects.filter(genre__icontains=genre).aggregate(Max('score'))['score__max'])
+		try:
+			max_val = float(Task2.objects.filter(genre__icontains=genre).aggregate(Max('score'))['score__max'])
+		except:
+			return tf_dict
 		if max_val == float(0.0):
 			max_val == 0.001
 		if total == float(0.0):
@@ -101,7 +104,7 @@ def main(genre, flag=0):
 
 	except Exception as e:
 		traceback.print_exc()
-		
+
 
 def elapsedTime(starttime):
 	elapsed = (time() - starttime)
@@ -113,7 +116,15 @@ def elapsedTime(starttime):
 if __name__ == "__main__":
 	tf()
 	starttime = time()
-	print main('Action', 1)
+	_genres = MlMovies.objects.values_list('genres', flat=True)
+	genres = []
+	for genre in _genres:
+		genres.extend(genre.split(','))
+	genres = [x.strip() for x in genres]
+	genres = list(set(genres))
+
+	for genre in genres:
+		print main(genre, 1)
 	elapsedTime(starttime)
 
 	
