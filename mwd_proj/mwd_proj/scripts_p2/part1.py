@@ -201,7 +201,7 @@ def compute_Semantics_1b(method, genre, k_topics):
 	return decomposed
 
 
-def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5):
+def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5, p_flag=True):
 	'''Here the data is (actor X tag) with each cell having TF-IDF values for that Actor and Tag which we use to compute n nearest neighbors'''
 	#All actors
 	actorobjs = ImdbActorInfo.objects.values_list('actorid','name')
@@ -229,67 +229,191 @@ def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5
 	else:
 		print "Actor not found!!"
 		exit()
-	print "Top {} actors similar to {} are: ".format(similarity_count, actor)
+	if p_flag:
+		print "\n*******Top {} actors similar to {} using {} and {} are: ".format(similarity_count, actor, method, measure)
 
 	ac_index = actors.index(ac_obj.actorid)
 	if (method.upper() == 'TF-IDF'):
 		if measure.lower() == 'cosine':
-			for i in range(len(actors)):
-				for j in range(len(tags)):
-					if V[i,j] == float(0.0):
-						V[i,j] = 9999999.0
 			decomposed = cosine_similarity(V)
-			# orig_decomposed = decomposed
-			# decomposed.sort(axis=1)
-			# vect = decomposed[ac_index,-(similarity_count+1):]
-			vect = decomposed[ac_index,:].argsort()[-(similarity_count+1):]
 
 		elif measure.lower() == 'euclidean':
 			decomposed = euclidean_distances(V)
-			# orig_decomposed = decomposed
-			# decomposed.sort(axis=1)
-			# vect = decomposed[ac_index,:(similarity_count+1)]
-			vect = decomposed[ac_index,:].argsort()[:(similarity_count+1)]
-			
+			for i in range(len(actors)):
+				for j in range(len(tags)):
+					if decomposed[i,j] != float(0.0):
+						decomposed[i,j] = 1.0/decomposed[i,j]
+
+		vect = decomposed[ac_index,:].argsort()[-(similarity_count+1):]	
 		vect = vect.tolist()
 		orig_vect = decomposed[ac_index,:].tolist()
 		actor_ids = []
-		for each in vect:
+		max_vals = []
+		for each in vect[::-1]:
 			#o_index = orig_vect.index(each)
 			#if o_index != ac_index:
 			if each != ac_index:
-				actor_ids.append(orig_vect[each])
+				actor_ids.append(actors[each])
+				max_vals.append(orig_vect[each])
 		output = []
-		for act in actors_dict:
-			if act in actor_ids:
-				output.append(actors_dict[act])
-		print vect
-		print orig_vect
-		print actor_ids
-		print output
+		for act1 in actors_dict:
+			if act1 in actor_ids:
+				output.append(actors_dict[act1])
+		if p_flag:
+			print "\n",output
+			print "\nMax vector values:",max_vals
+			#print "Orig vector:",orig_vect
+			print "ActorIds:",actor_ids
 		return decomposed
 
-
 	if (method.upper() == 'SVD'):
-		'''  SVD  Calculation '''
+		#calculate svd
 		U, sigma, Vt = svds(V, k=k_topics)
 		sigma = np.diag(sigma)
 		# print "\n\nSigma = \t",sigma
-		print "\n\nU:", len(U), len(U[0]), "Sigma: ", sigma.shape, " V: ", Vt.shape, "\n\n"
+		#print "\n\nU:", len(U), len(U[0]), "Sigma: ", sigma.shape, " V: ", Vt.shape, "\n\n"
 		#print U
 		#print "For genre Latent semantics are:", U[genres.index(genre)]
-		decomposed = U
+		#decomposed = U
 
-	normed_Vt = Vt / Vt.sum(axis=0)
+		if measure.lower() == 'cosine':
+			decomposed = cosine_similarity(U)
 
-	for i in range(k_topics):
-		idx = np.argpartition(-normed_Vt[i], 10)[:10]
-		print "Latent Semantic: ", i + 1, " = "
-		li = []
-		for j in idx:
-			li.append(actors_dict[actors[j]])
-		print '\t', li, "\n"
-	return decomposed
+		elif measure.lower() == 'euclidean':
+			decomposed = euclidean_distances(U)
+			for i in range(len(actors)):
+				for j in range(len(tags)):
+					if decomposed[i,j] != float(0.0):
+						decomposed[i,j] = 1.0/decomposed[i,j]
+
+		vect = decomposed[ac_index,:].argsort()[-(similarity_count+1):]	
+		vect = vect.tolist()
+		orig_vect = decomposed[ac_index,:].tolist()
+		actor_ids = []
+		max_vals = []
+		for each in vect[::-1]:
+			#o_index = orig_vect.index(each)
+			#if o_index != ac_index:
+			if each != ac_index:
+				actor_ids.append(actors[each])
+				max_vals.append(orig_vect[each])
+		output = []
+		for act1 in actors_dict:
+			if act1 in actor_ids:
+				output.append(actors_dict[act1])
+		if p_flag:
+			print "\n",output
+			print "\nMax vector values:",max_vals
+			#print "Orig vector:",orig_vect
+			print "ActorIds:",actor_ids
+		return decomposed
+
+def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5, p_flag=True):
+	'''Here the data is (actor X tag) with each cell having TF-IDF values for that Actor and Tag which we use to compute n nearest neighbors'''
+	#All actors
+	actorobjs = ImdbActorInfo.objects.values_list('actorid','name')
+	actors_dict = {x[0]:x[1] for x in actorobjs}
+	actors = list(ImdbActorInfo.objects.values_list('actorid', flat=True))
+	#All tags
+	tagobjs = GenomeTags.objects.values_list('tagid','tag')
+	tags_dict = {x[0]:x[1] for x in tagobjs}
+	tags = GenomeTags.objects.values_list('tagid', flat=True)
+
+	'''Matrix Dataset'''
+	V = sp.lil_matrix((len(actors), len(tags)))
+	#V = np.zeros(shape=(len(actors), len(tags)))
+	decomposed = []
+	'''get tf-idfs vectors for each actor w.r.t tags'''
+	
+	for i in range(len(actors)):
+		tf_idf = print_actor_vector.main(str(actors[i]), 1)
+		for j in range(len(tags)):
+			V[i, j] = tf_idf[tags[j]]
+
+	ac_obj = ImdbActorInfo.objects.filter(name__icontains=actor).first()
+	if ac_obj != None:
+		pass
+	else:
+		print "Actor not found!!"
+		exit()
+	if p_flag:
+		print "\n*******Top {} actors similar to {} using {} and {} are: ".format(similarity_count, actor, method, measure)
+
+	ac_index = actors.index(ac_obj.actorid)
+	if (method.upper() == 'TF-IDF'):
+		if measure.lower() == 'cosine':
+			decomposed = cosine_similarity(V)
+
+		elif measure.lower() == 'euclidean':
+			decomposed = euclidean_distances(V)
+			for i in range(len(actors)):
+				for j in range(len(tags)):
+					if decomposed[i,j] != float(0.0):
+						decomposed[i,j] = 1.0/decomposed[i,j]
+
+		vect = decomposed[ac_index,:].argsort()[-(similarity_count+1):]	
+		vect = vect.tolist()
+		orig_vect = decomposed[ac_index,:].tolist()
+		actor_ids = []
+		max_vals = []
+		for each in vect[::-1]:
+			#o_index = orig_vect.index(each)
+			#if o_index != ac_index:
+			if each != ac_index:
+				actor_ids.append(actors[each])
+				max_vals.append(orig_vect[each])
+		output = []
+		for act1 in actors_dict:
+			if act1 in actor_ids:
+				output.append(actors_dict[act1])
+		if p_flag:
+			print "\n",output
+			print "\nMax vector values:",max_vals
+			#print "Orig vector:",orig_vect
+			print "ActorIds:",actor_ids
+		return decomposed
+
+	if (method.upper() == 'SVD'):
+		#calculate svd
+		U, sigma, Vt = svds(V, k=k_topics)
+		sigma = np.diag(sigma)
+		# print "\n\nSigma = \t",sigma
+		#print "\n\nU:", len(U), len(U[0]), "Sigma: ", sigma.shape, " V: ", Vt.shape, "\n\n"
+		#print U
+		#print "For genre Latent semantics are:", U[genres.index(genre)]
+		#decomposed = U
+
+		if measure.lower() == 'cosine':
+			decomposed = cosine_similarity(U)
+
+		elif measure.lower() == 'euclidean':
+			decomposed = euclidean_distances(U)
+			for i in range(len(actors)):
+				for j in range(len(tags)):
+					if decomposed[i,j] != float(0.0):
+						decomposed[i,j] = 1.0/decomposed[i,j]
+
+		vect = decomposed[ac_index,:].argsort()[-(similarity_count+1):]	
+		vect = vect.tolist()
+		orig_vect = decomposed[ac_index,:].tolist()
+		actor_ids = []
+		max_vals = []
+		for each in vect[::-1]:
+			#o_index = orig_vect.index(each)
+			#if o_index != ac_index:
+			if each != ac_index:
+				actor_ids.append(actors[each])
+				max_vals.append(orig_vect[each])
+		output = []
+		for act1 in actors_dict:
+			if act1 in actor_ids:
+				output.append(actors_dict[act1])
+		if p_flag:
+			print "\n",output
+			print "\nMax vector values:",max_vals
+			#print "Orig vector:",orig_vect
+			print "ActorIds:",actor_ids
+		return decomposed
 
 
 if __name__ == "__main__":
@@ -305,8 +429,12 @@ if __name__ == "__main__":
 	# print e
 	# f=compute_Semantics_1b('LDA','Action',4)
 	# print f
-	g=compute_Semantics_1c('TF-IDF','Lillard, Matthew','cosine',10,5)
-	print g
-	h=compute_Semantics_1c('TF-IDF','Lillard, Matthew','euclidean',10,5)
-	print h
+	g=compute_Semantics_1c('TF-IDF','Lillard, Matthew','cosine',10,5,True)
+	#print g
+	h=compute_Semantics_1c('TF-IDF','Lillard, Matthew','euclidean',10,5,True)
+	#print h
+	i=compute_Semantics_1c('SVD','Lillard, Matthew','cosine',10,5,True)
+	#print i
+	j=compute_Semantics_1c('SVD','Lillard, Matthew','euclidean',10,5,True)
+	#print j
 	pass

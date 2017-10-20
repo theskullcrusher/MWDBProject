@@ -68,3 +68,8 @@ class Task5(models.Model):
 	genre = models.TextField(null=True, default='')
 	actorid = models.IntegerField(blank=True)
 	score = models.FloatField(null=True)
+
+class Task6(models.Model):
+	movieid = models.IntegerField(blank=True)
+	tagid = models.IntegerField(blank=True)
+	score = models.FloatField(null=True)
