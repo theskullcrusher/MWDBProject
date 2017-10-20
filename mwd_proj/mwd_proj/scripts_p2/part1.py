@@ -234,6 +234,10 @@ def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5
 	ac_index = actors.index(ac_obj.actorid)
 	if (method.upper() == 'TF-IDF'):
 		if measure.lower() == 'cosine':
+			for i in range(len(actors)):
+				for j in range(len(tags)):
+					if V[i,j] == float(0.0):
+						V[i,j] = 9999999.0
 			decomposed = cosine_similarity(V)
 			# orig_decomposed = decomposed
 			# decomposed.sort(axis=1)
@@ -301,8 +305,8 @@ if __name__ == "__main__":
 	# print e
 	# f=compute_Semantics_1b('LDA','Action',4)
 	# print f
-	g=compute_Semantics_1c('TF-IDF','McConaughey, Matthew','cosine',10,5)
+	g=compute_Semantics_1c('TF-IDF','Lillard, Matthew','cosine',10,5)
 	print g
-	h=compute_Semantics_1c('TF-IDF','McConaughey, Matthew','euclidean',10,5)
+	h=compute_Semantics_1c('TF-IDF','Lillard, Matthew','euclidean',10,5)
 	print h
 	pass
