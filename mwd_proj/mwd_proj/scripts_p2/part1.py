@@ -13,7 +13,7 @@ import math
 from django.db.models.functions import Lower
 from mwd_proj.phase2.models import *
 from django.db.models import Q
-from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, print_user_vector, print_actor_vector)
+from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, print_user_vector, print_actor_vector, print_movie_vector)
 
 import scipy
 import scipy.sparse as sp
@@ -308,7 +308,8 @@ def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5
 			print "ActorIds:",actor_ids
 		return decomposed
 
-def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5, p_flag=True):
+
+def compute_Semantics_1d(method, movie, measure, similarity_count=10, k_topics=5, p_flag=True):
 	'''Here the data is (actor X tag) with each cell having TF-IDF values for that Actor and Tag which we use to compute n nearest neighbors'''
 	#All actors
 	actorobjs = ImdbActorInfo.objects.values_list('actorid','name')
@@ -318,35 +319,41 @@ def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5
 	tagobjs = GenomeTags.objects.values_list('tagid','tag')
 	tags_dict = {x[0]:x[1] for x in tagobjs}
 	tags = GenomeTags.objects.values_list('tagid', flat=True)
+	#All movies
+	movieobjs = MlMovies.objects.values_list('movieid','moviename')
+	movies_dict = {x[0]:x[1] for x in movieobjs}
+	movies = list(MlMovies.objects.values_list('movieid', flat=True))
+	movies_names = list(MlMovies.objects.values_list('moviename', flat=True))
+
 
 	'''Matrix Dataset'''
-	V = sp.lil_matrix((len(actors), len(tags)))
+	V = sp.lil_matrix((len(movies_names), len(tags)))
 	#V = np.zeros(shape=(len(actors), len(tags)))
 	decomposed = []
-	'''get tf-idfs vectors for each actor w.r.t tags'''
+	'''get tf-idfs vectors for each movie w.r.t tags'''
 	
-	for i in range(len(actors)):
-		tf_idf = print_actor_vector.main(str(actors[i]), 1)
+	for i in range(len(movies_names)):
+		tf_idf = print_movie_vector.main(str(movies_names[i]), 1)
 		for j in range(len(tags)):
 			V[i, j] = tf_idf[tags[j]]
 
-	ac_obj = ImdbActorInfo.objects.filter(name__icontains=actor).first()
-	if ac_obj != None:
+	mo_obj = MlMovies.objects.filter(moviename__icontains=movie).first()
+	if mo_obj != None:
 		pass
 	else:
-		print "Actor not found!!"
+		print "Movie not found!!"
 		exit()
 	if p_flag:
-		print "\n*******Top {} actors similar to {} using {} and {} are: ".format(similarity_count, actor, method, measure)
+		print "\n*******Top {} actors similar to {} using {} and {} are: ".format(similarity_count, movie, method, measure)
 
-	ac_index = actors.index(ac_obj.actorid)
+	ac_index = movies.index(mo_obj.movieid)
 	if (method.upper() == 'TF-IDF'):
 		if measure.lower() == 'cosine':
 			decomposed = cosine_similarity(V)
 
 		elif measure.lower() == 'euclidean':
 			decomposed = euclidean_distances(V)
-			for i in range(len(actors)):
+			for i in range(len(movies)):
 				for j in range(len(tags)):
 					if decomposed[i,j] != float(0.0):
 						decomposed[i,j] = 1.0/decomposed[i,j]
@@ -354,23 +361,23 @@ def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5
 		vect = decomposed[ac_index,:].argsort()[-(similarity_count+1):]	
 		vect = vect.tolist()
 		orig_vect = decomposed[ac_index,:].tolist()
-		actor_ids = []
+		movie_ids = []
 		max_vals = []
 		for each in vect[::-1]:
 			#o_index = orig_vect.index(each)
 			#if o_index != ac_index:
 			if each != ac_index:
-				actor_ids.append(actors[each])
+				movie_ids.append(movies[each])
 				max_vals.append(orig_vect[each])
 		output = []
-		for act1 in actors_dict:
-			if act1 in actor_ids:
-				output.append(actors_dict[act1])
+		for act1 in movies_dict:
+			if act1 in movie_ids:
+				output.append(movies_dict[act1])
 		if p_flag:
 			print "\n",output
 			print "\nMax vector values:",max_vals
 			#print "Orig vector:",orig_vect
-			print "ActorIds:",actor_ids
+			print "ActorIds:",movie_ids
 		return decomposed
 
 	if (method.upper() == 'SVD'):
@@ -388,7 +395,7 @@ def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5
 
 		elif measure.lower() == 'euclidean':
 			decomposed = euclidean_distances(U)
-			for i in range(len(actors)):
+			for i in range(len(movies)):
 				for j in range(len(tags)):
 					if decomposed[i,j] != float(0.0):
 						decomposed[i,j] = 1.0/decomposed[i,j]
@@ -396,23 +403,23 @@ def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5
 		vect = decomposed[ac_index,:].argsort()[-(similarity_count+1):]	
 		vect = vect.tolist()
 		orig_vect = decomposed[ac_index,:].tolist()
-		actor_ids = []
+		movie_ids = []
 		max_vals = []
 		for each in vect[::-1]:
 			#o_index = orig_vect.index(each)
 			#if o_index != ac_index:
 			if each != ac_index:
-				actor_ids.append(actors[each])
+				movie_ids.append(movies[each])
 				max_vals.append(orig_vect[each])
 		output = []
-		for act1 in actors_dict:
-			if act1 in actor_ids:
-				output.append(actors_dict[act1])
+		for act1 in movies_dict:
+			if act1 in movie_ids:
+				output.append(movies_dict[act1])
 		if p_flag:
 			print "\n",output
 			print "\nMax vector values:",max_vals
 			#print "Orig vector:",orig_vect
-			print "ActorIds:",actor_ids
+			print "ActorIds:",movie_ids
 		return decomposed
 
 
@@ -429,12 +436,19 @@ if __name__ == "__main__":
 	# print e
 	# f=compute_Semantics_1b('LDA','Action',4)
 	# print f
-	g=compute_Semantics_1c('TF-IDF','Lillard, Matthew','cosine',10,5,True)
-	#print g
-	h=compute_Semantics_1c('TF-IDF','Lillard, Matthew','euclidean',10,5,True)
-	#print h
-	i=compute_Semantics_1c('SVD','Lillard, Matthew','cosine',10,5,True)
-	#print i
-	j=compute_Semantics_1c('SVD','Lillard, Matthew','euclidean',10,5,True)
-	#print j
-	pass
+	# g=compute_Semantics_1c('TF-IDF','Lillard, Matthew','cosine',10,5,True)
+	# #print g
+	# h=compute_Semantics_1c('TF-IDF','Lillard, Matthew','euclidean',10,5,True)
+	# #print h
+	# i=compute_Semantics_1c('SVD','Lillard, Matthew','cosine',10,5,True)
+	# #print i
+	# j=compute_Semantics_1c('SVD','Lillard, Matthew','euclidean',10,5,True)
+	# #print j
+	# k=compute_Semantics_1d('TF-IDF','Harry Potter and the Prisoner of Azkaban','cosine',10,5,True)
+	# #print k
+	# l=compute_Semantics_1d('TF-IDF','Harry Potter and the Prisoner of Azkaban','euclidean',10,5,True)
+	# #print l
+	m=compute_Semantics_1d('SVD','Harry Potter and the Prisoner of Azkaban','cosine',10,5,True)
+	#print m
+	n=compute_Semantics_1d('SVD','Harry Potter and the Prisoner of Azkaban','euclidean',10,5,True)
+	#print n
