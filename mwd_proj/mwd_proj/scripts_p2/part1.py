@@ -315,6 +315,7 @@ def compute_Semantics_1d(method, movie, measure, similarity_count=10, k_topics=5
 	actorobjs = ImdbActorInfo.objects.values_list('actorid','name')
 	actors_dict = {x[0]:x[1] for x in actorobjs}
 	actors = list(ImdbActorInfo.objects.values_list('actorid', flat=True))
+	actors_names = list(ImdbActorInfo.objects.values_list('name', flat=True))
 	#All tags
 	tagobjs = GenomeTags.objects.values_list('tagid','tag')
 	tags_dict = {x[0]:x[1] for x in tagobjs}
@@ -328,14 +329,20 @@ def compute_Semantics_1d(method, movie, measure, similarity_count=10, k_topics=5
 
 	'''Matrix Dataset'''
 	V = sp.lil_matrix((len(movies_names), len(tags)))
-	#V = np.zeros(shape=(len(actors), len(tags)))
+	V1 = sp.lil_matrix((len(actors_names), len(tags)))
 	decomposed = []
+	decomposed1 = []
 	'''get tf-idfs vectors for each movie w.r.t tags'''
 	
 	for i in range(len(movies_names)):
 		tf_idf = print_movie_vector.main(str(movies_names[i]), 1)
 		for j in range(len(tags)):
 			V[i, j] = tf_idf[tags[j]]
+
+	for i in range(len(actors_names)):
+		tf_idf = print_actor_vector.main(str(actors[i]), 1)
+		for j in range(len(tags)):
+			V1[i, j] = tf_idf[tags[j]]
 
 	mo_obj = MlMovies.objects.filter(moviename__icontains=movie).first()
 	if mo_obj != None:
@@ -344,82 +351,92 @@ def compute_Semantics_1d(method, movie, measure, similarity_count=10, k_topics=5
 		print "Movie not found!!"
 		exit()
 	if p_flag:
-		print "\n*******Top {} actors similar to {} using {} and {} are: ".format(similarity_count, movie, method, measure)
+		print "\n*******Top {} actors similar to {} using {}  are: ".format(similarity_count, movie, method)
 
 	ac_index = movies.index(mo_obj.movieid)
 	if (method.upper() == 'TF-IDF'):
-		if measure.lower() == 'cosine':
-			decomposed = cosine_similarity(V)
-
-		elif measure.lower() == 'euclidean':
-			decomposed = euclidean_distances(V)
-			for i in range(len(movies)):
-				for j in range(len(tags)):
-					if decomposed[i,j] != float(0.0):
-						decomposed[i,j] = 1.0/decomposed[i,j]
-
-		vect = decomposed[ac_index,:].argsort()[-(similarity_count+1):]	
+		V2 = np.dot(V, V1.T)
+		# print V.shape
+		# print V1.shape
+		# print V2.shape
+		# print V2[ac_index,:].shape
+		vect = V2[ac_index,:].toarray().argsort()[0][-(similarity_count+10):]	
 		vect = vect.tolist()
-		orig_vect = decomposed[ac_index,:].tolist()
-		movie_ids = []
+		orig_vect = (V2[ac_index,:].toarray().tolist())[0]
+		#print orig_vect
+		actor_ids = []
 		max_vals = []
 		for each in vect[::-1]:
+			#print each
 			#o_index = orig_vect.index(each)
 			#if o_index != ac_index:
-			if each != ac_index:
-				movie_ids.append(movies[each])
-				max_vals.append(orig_vect[each])
+			#if each != ac_index:
+			actor_ids.append(actors[each])
+			max_vals.append(orig_vect[each])
 		output = []
-		for act1 in movies_dict:
-			if act1 in movie_ids:
-				output.append(movies_dict[act1])
+		#Remove ids for actors in this movie
+		act_remove = list(MovieActor.objects.filter(movieid=movies[ac_index]).values_list('actorid',flat=True))
+		for ac in act_remove:
+			try:
+				i = actor_ids.index(ac)
+				del max_vals[i]
+				actor_ids.remove(ac)
+			except:
+				pass
+		for act1 in actors_dict:
+			if act1 in actor_ids:
+				output.append(actors_dict[act1])
 		if p_flag:
-			print "\n",output
-			print "\nMax vector values:",max_vals
+			print "\n",output[:10]
+			print "\nMax vector values:",max_vals[:10]
 			#print "Orig vector:",orig_vect
-			print "ActorIds:",movie_ids
+			print "ActorIds:",actor_ids[:10]
 		return decomposed
 
 	if (method.upper() == 'SVD'):
 		#calculate svd
 		U, sigma, Vt = svds(V, k=k_topics)
-		sigma = np.diag(sigma)
-		# print "\n\nSigma = \t",sigma
-		#print "\n\nU:", len(U), len(U[0]), "Sigma: ", sigma.shape, " V: ", Vt.shape, "\n\n"
-		#print U
-		#print "For genre Latent semantics are:", U[genres.index(genre)]
-		#decomposed = U
+		U1, sigma1, Vt1 = svds(V1, k=k_topics)
+		decomposed = np.dot(U,U1.T)
+		# sigma = np.diag(sigma)
+		# if measure.lower() == 'cosine':
+		# 	decomposed = cosine_similarity(U)
+		# elif measure.lower() == 'euclidean':
+		# 	decomposed = euclidean_distances(U)
+		# 	for i in range(len(movies)):
+		# 		for j in range(len(tags)):
+		# 			if decomposed[i,j] != float(0.0):
+		# 				decomposed[i,j] = 1.0/decomposed[i,j]
 
-		if measure.lower() == 'cosine':
-			decomposed = cosine_similarity(U)
-
-		elif measure.lower() == 'euclidean':
-			decomposed = euclidean_distances(U)
-			for i in range(len(movies)):
-				for j in range(len(tags)):
-					if decomposed[i,j] != float(0.0):
-						decomposed[i,j] = 1.0/decomposed[i,j]
-
-		vect = decomposed[ac_index,:].argsort()[-(similarity_count+1):]	
+		vect = decomposed[ac_index,:].argsort()[-(similarity_count+10):]	
 		vect = vect.tolist()
 		orig_vect = decomposed[ac_index,:].tolist()
-		movie_ids = []
+		actor_ids = []
 		max_vals = []
 		for each in vect[::-1]:
 			#o_index = orig_vect.index(each)
 			#if o_index != ac_index:
 			if each != ac_index:
-				movie_ids.append(movies[each])
+				actor_ids.append(actors[each])
 				max_vals.append(orig_vect[each])
 		output = []
-		for act1 in movies_dict:
-			if act1 in movie_ids:
-				output.append(movies_dict[act1])
+		#Remove ids for actors in this movie
+		act_remove = list(MovieActor.objects.filter(movieid=movies[ac_index]).values_list('actorid',flat=True))
+		for ac in act_remove:
+			try:
+				i = actor_ids.index(ac)
+				del max_vals[i]
+				actor_ids.remove(ac)
+			except:
+				pass
+		for act1 in actors_dict:
+			if act1 in actor_ids:
+				output.append(actors_dict[act1])
 		if p_flag:
-			print "\n",output
-			print "\nMax vector values:",max_vals
+			print "\n",output[:10]
+			print "\nMax vector values:",max_vals[:10]
 			#print "Orig vector:",orig_vect
-			print "ActorIds:",movie_ids
+			print "ActorIds:",actor_ids[:10]
 		return decomposed
 
 
@@ -444,11 +461,13 @@ if __name__ == "__main__":
 	# #print i
 	# j=compute_Semantics_1c('SVD','Lillard, Matthew','euclidean',10,5,True)
 	# #print j
-	# k=compute_Semantics_1d('TF-IDF','Harry Potter and the Prisoner of Azkaban','cosine',10,5,True)
-	# #print k
+	k=compute_Semantics_1d('TF-IDF','Swordfish','cosine',10,5,True)
+	#print k
 	# l=compute_Semantics_1d('TF-IDF','Harry Potter and the Prisoner of Azkaban','euclidean',10,5,True)
-	# #print l
-	m=compute_Semantics_1d('SVD','Harry Potter and the Prisoner of Azkaban','cosine',10,5,True)
-	#print m
+	#print l
+	m=compute_Semantics_1d('SVD','Swordfish','cosine',10,5,True)
+	# #print m
 	n=compute_Semantics_1d('SVD','Harry Potter and the Prisoner of Azkaban','euclidean',10,5,True)
 	#print n
+	o=compute_Semantics_1d('SVD','Pitch Black','cosine',10,5,True)
+	#print o
