@@ -374,6 +374,7 @@ def compute_Semantics_1d(method, movie, measure, similarity_count=10, k_topics=5
 			actor_ids.append(actors[each])
 			max_vals.append(orig_vect[each])
 		output = []
+		print "Similar Actors who might have acted in the movie too:\n",actor_ids
 		#Remove ids for actors in this movie
 		act_remove = list(MovieActor.objects.filter(movieid=movies[ac_index]).values_list('actorid',flat=True))
 		for ac in act_remove:
@@ -383,6 +384,8 @@ def compute_Semantics_1d(method, movie, measure, similarity_count=10, k_topics=5
 				actor_ids.remove(ac)
 			except:
 				pass
+		print "Actors who have acted in the movie:\n",act_remove
+		print "Top actorids after removing the above actors:\n",actor_ids
 		for act1 in actors_dict:
 			if act1 in actor_ids:
 				output.append(actors_dict[act1])
@@ -422,6 +425,8 @@ def compute_Semantics_1d(method, movie, measure, similarity_count=10, k_topics=5
 		output = []
 		#Remove ids for actors in this movie
 		act_remove = list(MovieActor.objects.filter(movieid=movies[ac_index]).values_list('actorid',flat=True))
+		print "Similar Actors who might have acted in the movie too:\n",actor_ids
+
 		for ac in act_remove:
 			try:
 				i = actor_ids.index(ac)
@@ -432,6 +437,8 @@ def compute_Semantics_1d(method, movie, measure, similarity_count=10, k_topics=5
 		for act1 in actors_dict:
 			if act1 in actor_ids:
 				output.append(actors_dict[act1])
+		print "Actors who have acted in the movie:\n",act_remove
+		print "Top actorids after removing the above actors:\n",actor_ids
 		if p_flag:
 			print "\n",output[:10]
 			print "\nMax vector values:",max_vals[:10]

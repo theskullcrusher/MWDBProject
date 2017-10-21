@@ -12,12 +12,11 @@ os.environ['DJANGO_SETTINGS_MODULE']="mwd_proj.settings"
 django.setup()
 from mwd_proj.utils.utils2 import *
 import traceback
-from django.db.models import Sum
+from django.db.models import Sum, Avg, Q
 import operator
 import math
 from django.db.models.functions import Lower
 from mwd_proj.phase2.models import *
-from django.db.models import Q
 from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, print_user_vector, print_actor_vector)
 
 def compute_Semantics_2d():
@@ -73,7 +72,7 @@ def compute_Semantics_2d():
 	# print(len(results))
 	# print(len(results[0]))
 	# print(len(results[0][0]))
-	tags = MlRatings.objects.select_related().all()
+	
 	#break
 	inv_t = {v: k for k, v in tag_dict.iteritems()}
 	inv_m = {v: k for k, v in movie_dict.iteritems()}
@@ -457,7 +456,28 @@ def compute_Semantics_2c():
 	for i in reversed(sorted(ls_5,key=lambda x: x[1])):
 	 print(i)
 
+
+def table_joiner():
+	"""Creates a metadata table"""
+	ar = MlRatings.objects.filter().values('movieid').annotate(score=Avg('rating'))
+	avg_rating = {}
+	for a in ar:
+		avg_rating[a['movieid']] = a['score']
+
+	Task7.objects.all().delete()
+	tagobjs = MlTags.objects.all()
+	for eachobj in tagobjs:
+		tobjs = MlRatings.objects.filter(movieid=eachobj.movieid)
+		for ea in tobjs:
+			if ea.rating > avg_rating[eachobj.movieid.movieid]:
+				Task7.objects.create(movieid=eachobj.movieid.movieid, tagid=eachobj.tagid.tagid, rating=ea.rating)
+
+
+
 if __name__ == "__main__":
+	# a=compute_Semantics_2c()
+	# print a
+	# table_joiner()   #For prepopulation, run only once on new data
 	h=compute_Semantics_2d()
 	print h
 	pass
