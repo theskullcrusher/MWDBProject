@@ -18,6 +18,46 @@ import math
 from django.db.models.functions import Lower
 from mwd_proj.phase2.models import *
 from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, print_user_vector, print_actor_vector)
+from collections import defaultdict
+from mwd_proj.scripts_p2.part1 import compute_Semantics_1c
+from mwd_proj.scripts_p2.Arun.part3 import coactor_matrix
+from scipy.sparse.linalg import svds
+
+
+def compute_Semantics_2a(k=3, max_actors=5):
+	"""Actor-actor similarity with svd and cluster grouping"""
+	actorobjs = ImdbActorInfo.objects.values_list('actorid','name')
+	actor_dict = {x[0]:x[1] for x in actorobjs}
+	#print actor_dict
+	dict_semantics = defaultdict(list)
+	matrix, actor_list = compute_Semantics_1c('SVD','Lillard, Matthew','cosine',10,5,False)
+
+	u, sigma, Vt = svds(matrix,k)
+	print u
+
+	for row in u:
+		max_ = max(row)
+		min_ = min(row)
+		for i in range(len(row)):
+			row[i] = (row[i] - min_)/(max_ - min_)
+
+	group_list = []
+	for row in u:
+		value = max(row)
+		for i in range(len(row)):
+			if row[i]==value:
+				group_list.append(i)
+	i=1
+	for row in u.T:
+		id_ = np.argpartition(row, -max_actors)[-max_actors:]
+		e1 = []
+		for e in id_:
+			e1.append(actor_dict[actor_list[e]])
+		dict_semantics[i].append(e1)
+		i+=1
+	print group_list
+	print dict_semantics
+
 
 def compute_Semantics_2d():
 	"""Tensor decomposition on actor,movie,year and put actor into non-overlapping bins of latent semantics"""
@@ -473,11 +513,12 @@ def table_joiner():
 				Task7.objects.create(movieid=eachobj.movieid.movieid, tagid=eachobj.tagid.tagid, rating=ea.rating)
 
 
-
 if __name__ == "__main__":
 	# a=compute_Semantics_2c()
 	# print a
 	# table_joiner()   #For prepopulation, run only once on new data
-	h=compute_Semantics_2d()
-	print h
+	# h=compute_Semantics_2d()
+	# print h
+	b=compute_Semantics_2a(k)
+	#print b
 	pass

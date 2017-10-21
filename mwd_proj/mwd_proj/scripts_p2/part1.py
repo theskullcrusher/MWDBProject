@@ -104,6 +104,7 @@ def compute_Semantics_1a(method, genre,k_topics):
 					  and then pick top 5 tags somewhat describing that Latent Semantic '''
 	#normalize columns for most discriminating feature finding
 	normed_Vt = Vt/Vt.sum(axis=0)
+
 	#print "\n\nHo ho!!\n", normed_Vt
 	#print tags_dict
 	for i in range(k_topics):
@@ -306,7 +307,7 @@ def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5
 			print "\nMax vector values:",max_vals
 			#print "Orig vector:",orig_vect
 			print "ActorIds:",actor_ids
-		return decomposed
+		return decomposed, actors
 
 
 def compute_Semantics_1d(method, movie, measure, similarity_count=10, k_topics=5, p_flag=True):
@@ -425,7 +426,8 @@ def compute_Semantics_1d(method, movie, measure, similarity_count=10, k_topics=5
 		output = []
 		#Remove ids for actors in this movie
 		act_remove = list(MovieActor.objects.filter(movieid=movies[ac_index]).values_list('actorid',flat=True))
-		print "Similar Actors who might have acted in the movie too:\n",actor_ids
+		if p_flag:
+			print "Similar Actors who might have acted in the movie too:\n",actor_ids
 
 		for ac in act_remove:
 			try:
@@ -437,9 +439,9 @@ def compute_Semantics_1d(method, movie, measure, similarity_count=10, k_topics=5
 		for act1 in actors_dict:
 			if act1 in actor_ids:
 				output.append(actors_dict[act1])
-		print "Actors who have acted in the movie:\n",act_remove
-		print "Top actorids after removing the above actors:\n",actor_ids
 		if p_flag:
+			print "Actors who have acted in the movie:\n",act_remove
+			print "Top actorids after removing the above actors:\n",actor_ids
 			print "\n",output[:10]
 			print "\nMax vector values:",max_vals[:10]
 			#print "Orig vector:",orig_vect
@@ -460,13 +462,13 @@ if __name__ == "__main__":
 	# print e
 	# f=compute_Semantics_1b('LDA','Action',4)
 	# print f
-	# g=compute_Semantics_1c('TF-IDF','Lillard, Matthew','cosine',10,5,True)
+	# g,z=compute_Semantics_1c('TF-IDF','Lillard, Matthew','cosine',10,5,True)
 	# #print g
-	# h=compute_Semantics_1c('TF-IDF','Lillard, Matthew','euclidean',10,5,True)
+	# h,z=compute_Semantics_1c('TF-IDF','Lillard, Matthew','euclidean',10,5,True)
 	# #print h
-	# i=compute_Semantics_1c('SVD','Lillard, Matthew','cosine',10,5,True)
+	# i,z=compute_Semantics_1c('SVD','Lillard, Matthew','cosine',10,5,True)
 	# #print i
-	# j=compute_Semantics_1c('SVD','Lillard, Matthew','euclidean',10,5,True)
+	# j,z=compute_Semantics_1c('SVD','Lillard, Matthew','euclidean',10,5,True)
 	# #print j
 	k=compute_Semantics_1d('TF-IDF','Swordfish','cosine',10,5,True)
 	#print k

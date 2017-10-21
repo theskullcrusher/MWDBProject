@@ -47,8 +47,8 @@ def coactor_matrix():
 	#print list(act)
 
 	results = [[0]*actor_count for i in range(actor_count)]
-	print(len(results[0]))
-	print(len(results))
+#	print(len(results[0]))
+#	print(len(results))
 	act = list(act)
 	for i in range(len(act)):
 	 #print actor_list[i]
