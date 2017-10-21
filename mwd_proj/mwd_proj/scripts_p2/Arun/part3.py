@@ -33,8 +33,8 @@ def compute_Semantics_3a():
 	print(result[:10])
 
 
-def compute_Semantics_3b():
-	setActors = set([74])
+def coactor_matrix():
+	"""Gets coactor matrix"""
 	actor_dict = {}
 	act = MovieActor.objects.values_list('actorid', flat=True).distinct()
 	actor_count = act.count()
@@ -64,12 +64,19 @@ def compute_Semantics_3b():
 	 	  
 	for i in range(len(results)):
 	 results[i][i] =0.0
-		
+	return results, actor_dict	
+
+
+def compute_Semantics_3b():
+	setActors = set([74])
+
+	results = coactor_matrix()
 	# with open("coactor_matrix.csv", "wb") as f:
 	#    writer = csv.writer(f)
 	#    writer.writerows(results)
 
-	nodes,s=ppr.closedform(setActors,results)
+#	nodes,s=ppr.closedform(setActors,results)
+	nodes,s=ppr.powerIteration(setActors,results)
 	#print(s)
 	print(s)
 	result = list(reversed(sorted(range(len(s)), key=lambda k: s[k])))
