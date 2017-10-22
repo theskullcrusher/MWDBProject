@@ -93,7 +93,7 @@ def compute_Semantics_1a(method, genre,k_topics):
 				else:
 					V[i, j] = 0.0
 
-		lda = LDA(n_components=k_topics, max_iter=10000, learning_method="batch",evaluate_every=10)
+		lda = LDA(n_components=k_topics, max_iter=10000, learning_method="batch",evaluate_every=10,perp_tol=1e-12)
 		lda.fit(V)
 		Vt = lda.components_
 		decomposed = lda.transform(V)
@@ -184,7 +184,7 @@ def compute_Semantics_1b(method, genre, k_topics):
 				else:
 					V[i, j] = 0.0
 
-		lda = LDA(n_components=k_topics, max_iter=10000, learning_method="batch",evaluate_every=10)
+		lda = LDA(n_components=k_topics, max_iter=10000, learning_method="batch",evaluate_every=10,perp_tol=1e-12)
 		lda.fit(V)
 		Vt = lda.components_
 		decomposed = lda.transform(V)
