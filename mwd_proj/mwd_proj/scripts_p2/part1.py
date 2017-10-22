@@ -62,7 +62,7 @@ def compute_Semantics_1a(method, genre,k_topics):
 		print "\n\nU:", len(U), len(U[0]), "Sigma: ", sigma.shape, " V: ", Vt.shape, "\n\n"
 		#print U
 		decomposed = U
-		print "For genre Latent semantics are:", U[genres.index(genre)]
+		print "For genre",genre,"Latent semantics are:", U[genres.index(genre)]
 
 
 	if(method.upper() == 'PCA'):
@@ -77,6 +77,7 @@ def compute_Semantics_1a(method, genre,k_topics):
 		Vt = pca.components_
 		#print Vt
 		decomposed = pca.transform(V_std)
+		print "For genre",genre,"Latent semantics are:", decomposed[genres.index(genre)]
 
 	if (method.upper() == 'LDA'):
 		'''TO:DO://  Create matrix with doc as rows and words as column s with each cell having freq count not tf-idf'''
@@ -97,6 +98,7 @@ def compute_Semantics_1a(method, genre,k_topics):
 		lda.fit(V)
 		Vt = lda.components_
 		decomposed = lda.transform(V)
+		print "For genre",genre,"Latent semantics are:", decomposed[genres.index(genre)]
 
 	'''IN order to give Latenet Semantics some names: Normalize each column in feature factor matrix
 					  and then pick top 5 tags somewhat describing that Latent Semantic '''
@@ -115,7 +117,7 @@ def compute_Semantics_1a(method, genre,k_topics):
 	for i in range(k_topics):
 		idx = np.argpartition(-normed_Vt[i], 10)[:10]
 		# print "What is this?", -np.partition(-normed_Vt[0], 5)[:5]
-		print idx
+		#rint idx
 		print "Latent Semantics: ", i + 1, " = "
 		li = []
 		for j in idx:
@@ -156,7 +158,7 @@ def compute_Semantics_1b(method, genre, k_topics):
 		# print "\n\nSigma = \t",sigma
 		print "\n\nU:", len(U), len(U[0]), "Sigma: ", sigma.shape, " V: ", Vt.shape, "\n\n"
 		#print U
-		#print "For genre Latent semantics are:", U[genres.index(genre)]
+		print "For genre",genre,"Latent semantics are:", U[genres.index(genre)]
 		decomposed = U
 
 	if (method.upper() == 'PCA'):
@@ -171,6 +173,7 @@ def compute_Semantics_1b(method, genre, k_topics):
 		Vt = pca.components_
 		# print Vt
 		decomposed = pca.transform(V_std)
+		print "For genre",genre,"Latent semantics are:", decomposed[genres.index(genre)]
 
 	if (method.upper() == 'LDA'):
 		'''TO:DO://  Create matrix with doc as rows and words as column s with each cell having freq count not tf-idf'''
@@ -188,6 +191,7 @@ def compute_Semantics_1b(method, genre, k_topics):
 		lda.fit(V)
 		Vt = lda.components_
 		decomposed = lda.transform(V)
+		print "For genre",genre,"Latent semantics are:", decomposed[genres.index(genre)]
 
 
 	'''SVD,PCA :: IN order to give Latenet Semantics some names: Normalize each column in feature factor matrix
