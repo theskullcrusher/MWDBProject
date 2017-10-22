@@ -460,26 +460,26 @@ def compute_Semantics_1d(method, movie, measure, similarity_count=10, k_topics=5
 
 
 if __name__ == "__main__":
-	# a=compute_Semantics_1a('SVD','Action',4)
-	# print a
-	# b=compute_Semantics_1a('PCA','Action',4)
-	# print b
-	# c=compute_Semantics_1a('LDA','Action',4)
-	# print c
-	# d=compute_Semantics_1b('SVD','Action',4)
-	# print d
-	# e=compute_Semantics_1b('PCA','Action',4)
-	# print e
-	# f=compute_Semantics_1b('LDA','Action',4)
-	# print f
-	g,z=compute_Semantics_1c('TF-IDF','Lillard, Matthew','cosine',10,5,True)
-	print g
-	h,z=compute_Semantics_1c('TF-IDF','Lillard, Matthew','euclidean',10,5,True)
-	print h
-	i,z=compute_Semantics_1c('SVD','Lillard, Matthew','cosine',10,5,True)
-	print i
-	j,z=compute_Semantics_1c('SVD','Lillard, Matthew','euclidean',10,5,True)
-	print j
+	a=compute_Semantics_1a('SVD','Action',4)
+	print a
+	b=compute_Semantics_1a('PCA','Action',4)
+	print b
+	c=compute_Semantics_1a('LDA','Action',4)
+	print c
+	d=compute_Semantics_1b('SVD','Action',4)
+	print d
+	e=compute_Semantics_1b('PCA','Action',4)
+	print e
+	f=compute_Semantics_1b('LDA','Action',4)
+	print f
+	# g,z=compute_Semantics_1c('TF-IDF','Lillard, Matthew','cosine',10,5,True)
+	# print g
+	# h,z=compute_Semantics_1c('TF-IDF','Lillard, Matthew','euclidean',10,5,True)
+	# print h
+	# i,z=compute_Semantics_1c('SVD','Lillard, Matthew','cosine',10,5,True)
+	# print i
+	# j,z=compute_Semantics_1c('SVD','Lillard, Matthew','euclidean',10,5,True)
+	# print j
 	# k=compute_Semantics_1d('TF-IDF','Swordfish','cosine',10,5,True)
 	# #print k
 	# # l=compute_Semantics_1d('TF-IDF','Harry Potter and the Prisoner of Azkaban','euclidean',10,5,True)

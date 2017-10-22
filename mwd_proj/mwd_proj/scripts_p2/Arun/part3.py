@@ -24,6 +24,7 @@ from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, pr
 from mwd_proj.scripts_p2.Arun import ppr
 
 def compute_Semantics_3a():
+	print "\n\n"
 	setActors = set([1860883,486691,1335137,901175])
 	actor_dict = {}
 	act = MovieActor.objects.values_list('actorid', flat=True).distinct()
@@ -56,6 +57,7 @@ def compute_Semantics_3a():
 
 def coactor_matrix():
 	"""Gets coactor matrix"""
+	print "\n\n"
 	actor_dict = {}
 	act = MovieActor.objects.values_list('actorid', flat=True).distinct()
 	actor_count = act.count()
@@ -108,6 +110,6 @@ def compute_Semantics_3b():
 		print(inv_a[ea], ac.name, s[ea])
 
 if __name__ == "__main__":
-	h=compute_Semantics_3b()
-	#print h
-	pass
+	compute_Semantics_3a()
+	compute_Semantics_3b()
+	
