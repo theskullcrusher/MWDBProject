@@ -24,13 +24,34 @@ from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, pr
 from mwd_proj.scripts_p2.Arun import ppr
 
 def compute_Semantics_3a():
-	setActors = set([74])
+	setActors = set([1860883,486691,1335137,901175])
+	actor_dict = {}
+	act = MovieActor.objects.values_list('actorid', flat=True).distinct()
+	actor_count = act.count()
+	for n, each in enumerate(list(act)):
+		actor_dict[each] = n
+	setIndex = set([])
+	inv_a = {v: k for k, v in actor_dict.iteritems()}
+	for actorid in setActors:
+		#print(actor_dict[2312401])
+		setIndex.add(actor_dict[actorid])
 	results = part1.compute_Semantics_1c('TF-IDF','Lillard, Matthew','cosine',10,5,False)
-	nodes,s=ppr.powerIteration(setActors,results)
+	#print(len(results))
+	#print((results[0]))
+	nodes,s=ppr.closedform(setIndex,results,0.85)
 	#print(s)
-	print(s)
+	#print(s)
 	result = list(reversed(sorted(range(len(s)), key=lambda k: s[k])))
-	print(result[:10])
+	till_which = len(setActors)+10
+	print(result[:till_which])
+	print("Seed Actors:")
+	for actorid in setActors:
+		print(ImdbActorInfo.objects.get(actorid=actorid).name)
+	for ea in result[:till_which]:
+		ac = ImdbActorInfo.objects.get(actorid=inv_a[ea])
+		print(inv_a[ea], ac.name, s[ea])
+		#print(inv_a[ea], ac.name, s[ea], print_actor_vector.main(inv_a[ea]))
+
 
 
 def coactor_matrix():
@@ -38,22 +59,15 @@ def coactor_matrix():
 	actor_dict = {}
 	act = MovieActor.objects.values_list('actorid', flat=True).distinct()
 	actor_count = act.count()
+
 	for n, each in enumerate(list(act)):
-		#print(n,each)
-		#actor_list[n] = each
 		actor_dict[each] = n
-
-	#print actor_dict
-	#print list(act)
-
 	results = [[0]*actor_count for i in range(actor_count)]
-#	print(len(results[0]))
-#	print(len(results))
 	act = list(act)
 	for i in range(len(act)):
-	 #print actor_list[i]
 	 ac = ImdbActorInfo.objects.get(actorid=act[i])
 	 movies = MovieActor.objects.filter(actorid=ac)
+
 	 for movie in movies:
 	 	 #print movie.movieid.movieid
 		 result1 = MovieActor.objects.filter(movieid=movie.movieid)
@@ -61,28 +75,39 @@ def coactor_matrix():
 		  #print res.actorid.actorid
 		  #print(res.actorid.actorid)
 		  results[i][actor_dict[res.actorid.actorid]]+=1.0 
-	 	  
+	 	 
 	for i in range(len(results)):
 	 results[i][i] =0.0
 	return results, actor_dict	
 
 
 def compute_Semantics_3b():
-	setActors = set([74])
-
-	results = coactor_matrix()
+	setActors = set([2312401])
+	results, actor_dict = coactor_matrix()
+	setIndex = set([])
+	for actorid in setActors:
+		#print(actor_dict[2312401])
+		setIndex.add(actor_dict[actorid])
+	#print(setIndex)
 	# with open("coactor_matrix.csv", "wb") as f:
 	#    writer = csv.writer(f)
 	#    writer.writerows(results)
-
+	inv_a = {v: k for k, v in actor_dict.iteritems()}
 #	nodes,s=ppr.closedform(setActors,results)
-	nodes,s=ppr.powerIteration(setActors,results)
+	nodes,s=ppr.closedform(setIndex,results,0.85)
 	#print(s)
-	print(s)
+	#print(s)
 	result = list(reversed(sorted(range(len(s)), key=lambda k: s[k])))
-	print(result[:10])
+	#print(result[:10])
+	till_which = len(setActors)+10
+	print("Seed Actors:")
+	for actorid in setActors:
+		print(ImdbActorInfo.objects.get(actorid=actorid).name)
+	for ea in result[:till_which]:
+		ac = ImdbActorInfo.objects.get(actorid=inv_a[ea])
+		print(inv_a[ea], ac.name, s[ea])
 
 if __name__ == "__main__":
 	h=compute_Semantics_3b()
-	print h
+	#print h
 	pass
