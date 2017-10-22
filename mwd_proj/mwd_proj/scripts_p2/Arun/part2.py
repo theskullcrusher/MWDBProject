@@ -61,39 +61,41 @@ def compute_Semantics_2a(k=3, max_actors=5):
 
 def compute_Semantics_2d():
 	"""Tensor decomposition on actor,movie,year and put actor into non-overlapping bins of latent semantics"""
+
 	tag_dict = {}
-	taglist = MlTags.objects.values_list('tagid', flat=True).distinct()
+	taglist = Task7.objects.values_list('tagid', flat=True).distinct()
 	tag_count = taglist.count()
 
 	for n, each in enumerate(taglist):
 		tag_dict[n] = each
 
 	rating_dict = {}
-	rate = MlRatings.objects.values_list('rating', flat=True).distinct()
+	rate = Task7.objects.values_list('rating', flat=True).distinct()
 	rating_count = rate.count()
 	for n, each in enumerate(rate):
 		rating_dict[n] = each
 
 	movie_dict = {}
-	mov = MlMovies.objects.values_list('movieid', flat=True).distinct()
+	mov = Task7.objects.values_list('movieid', flat=True).distinct()
 	movie_count = mov.count()
 	for n, each in enumerate(mov):
 		movie_dict[n] = each
 
 	tagobjs = GenomeTags.objects.values_list('tagid','tag')
 	tag_mapping = {x[0]:x[1] for x in tagobjs}
+	#tags = list(tagobjs)
 	
 	movieobjs = MlMovies.objects.values_list('movieid','moviename')
 	movie_mapping = {x[0]:x[1] for x in movieobjs}
 	
 
-	print(tag_count)
-	print(rating_count)
-	print(movie_count)
+	# print(tag_count)
+	# print(rating_count)
+	# print(movie_count)
 
-	print tag_dict
-	print rating_dict
-	print movie_dict	
+	# print tag_dict
+	# print rating_dict
+	# print movie_dict	
 
 	# with open('tag_space_matrix/actor_dict.csv', 'wb') as csv_file:
 	#     writer = csv.writer(csv_file)
@@ -107,31 +109,38 @@ def compute_Semantics_2d():
 	#     writer = csv.writer(csv_file)
 	#     for key, value in sorted(movie_dict.items(),key=operator.itemgetter(1)):
 	#        writer.writerow([value, key])
-
+	tags = Task7.objects.values_list('tagid','movieid','rating')
 	results = [[[0]*rating_count for i in range(movie_count)] for i in range(tag_count)]
-	# print(len(results))
-	# print(len(results[0]))
-	# print(len(results[0][0]))
+	#print(len(results))
+	#print(len(results[0]))
+	#print(len(results[0][0]))
 	
 	#break
 	inv_t = {v: k for k, v in tag_dict.iteritems()}
 	inv_m = {v: k for k, v in movie_dict.iteritems()}
 	inv_r = {v: k for k, v in rating_dict.iteritems()}
+	
 	for row in tags:
-		row1 = MlRatings.objects.filter(userid=row1.userid.userid)
-		results[inv_t[row.tagid.tagid]][inv_m[row.movieid.movieid]][inv_r[row.movieid.rating]]=1.0
+		#print(inv_t[row[0]])
+		#row1 = MlRatings.objects.filter(userid=row1.userid.userid)
+		results[inv_t[row[0]]][inv_m[row[1]]][inv_r[row[2]]]=1.0
 		
 	tensor = T.tensor(np.array(results))
-	print(tensor)
+	#print(tensor)
 	factors = tensorly.decomposition.parafac(tensor,5)
 
 	#ACTOR SEMANTICS
-	print(factors[0])
-	print("AFTER")
+	#print(factors)
+	#tucker
+	#factors[0]=factors[1]
+	#factors[1]=factors[2]
+	#factors[2]=factors[3]
+	#print("AFTER")
 	#col_sums = factors[0].asnumpy().sum(axis=0)
 	x=factors[0]
-	factors[0] = (x.asnumpy() - x.asnumpy().min(0)) / x.asnumpy().ptp(0)
-	print(factors[0])
+	#factors[0] = (x.asnumpy() - x.asnumpy().min(0)) / x.asnumpy().ptp(0)
+	factors[0] = (x.asnumpy() - x.asnumpy().min(0)) / (x.asnumpy().max(0) - x.asnumpy().min(0))
+	#print(factors[0])
 	ls_1 = []
 	ls_2 = []
 	ls_3 = []
@@ -146,7 +155,7 @@ def compute_Semantics_2d():
 	 row = factors[0][i]
 	 #print(row)
 	 num = np.ndarray.argmax(row)
-	 val = max(row)
+	 val = max(row)/sum(row)
 	 if num==0:
 	   ls_1.append([tag_mapping[tag_dict[i]],val])
 	if num==1:
@@ -159,32 +168,34 @@ def compute_Semantics_2d():
 	   ls_5.append([tag_mapping[tag_dict[i]],val])
 	  # for row in query:
 	  #  ls_5.append([row['name'],val])
-
-	print("LATENT SEMANTIC 1")
+	print("\nTag Bins")
+	print("LATENT SEMANTIC 1:")
 	for i in reversed(sorted(ls_1,key=lambda x: x[1])):
 	 print(i)
 
-	print("LATENT SEMANTIC 2")
+	print("LATENT SEMANTIC 2:")
 	for i in reversed(sorted(ls_2,key=lambda x: x[1])):
 	 print(i)
 
-	print("LATENT SEMANTIC 3")
+	print("LATENT SEMANTIC 3:")
 	for i in reversed(sorted(ls_3,key=lambda x: x[1])):
 	 print(i)
 
-	print("LATENT SEMANTIC 4")
+	print("LATENT SEMANTIC 4:")
 	for i in reversed(sorted(ls_4,key=lambda x: x[1])):
 	 print(i)
 
 
-	print("LATENT SEMANTIC 5")
+	print("LATENT SEMANTIC 5:")
 	for i in reversed(sorted(ls_5,key=lambda x: x[1])):
 	 print(i)
 
 
 	# MOVIE SEMANTICS
-	x=factors[2]
-	factors[2] = (x.asnumpy() - x.asnumpy().min(0)) / x.asnumpy().ptp(0)
+	x=factors[1]
+	#factors[1] = (x.asnumpy() - x.asnumpy().min(0)) / x.asnumpy().ptp(0)
+	factors[1] = (x.asnumpy() - x.asnumpy().min(0)) / (x.asnumpy().max(0) - x.asnumpy().min(0))
+	#print(factors[1])
 	ls_1 = []
 	ls_2 = []
 	ls_3 = []
@@ -193,11 +204,11 @@ def compute_Semantics_2d():
 	# with open('tag_space_matrix/movie_dict.csv', mode='r') as infile:
 	# 	reader = csv.reader(infile)
 	# 	actor_dict = {rows[0]:rows[1] for rows in reader}
-	for i in range(len(factors[2])):
-	 row = factors[2][i]
+	for i in range(len(factors[1])):
+	 row = factors[1][i]
 	 #print(row)
 	 num = np.ndarray.argmax(row)
-	 val = max(row)
+	 val = max(row)/sum(row)
 	 if num==0:
 	   ls_1.append([movie_mapping[movie_dict[i]],val])
 	 if num==1:
@@ -210,7 +221,7 @@ def compute_Semantics_2d():
 	   ls_5.append([movie_mapping[movie_dict[i]],val])
 
 
-
+	print("\nMovie Bins")
 	print("LATENT SEMANTIC 1")
 	for i in reversed(sorted(ls_1,key=lambda x: x[1])):
 	 print(i)
@@ -232,18 +243,19 @@ def compute_Semantics_2d():
 	 print(i)
 
 	# YEAR SEMANTICS
-	x=factors[1]
-	factors[1] = (x.asnumpy() - x.asnumpy().min(0)) / x.asnumpy().ptp(0)
+	x=factors[2]
+	factors[2] = (x.asnumpy() - x.asnumpy().min(0)) / (x.asnumpy().max(0) - x.asnumpy().min(0))
 	ls_1 = []
 	ls_2 = []
 	ls_3 = []
 	ls_4 = []
 	ls_5 = []
-	for i in range(len(factors[1])):
-	 row = factors[1][i]
+	#print(len(factors[2]))
+	for i in range(len(factors[2])):
+	 row = factors[2][i]
 	 #print(row)
 	 num = np.ndarray.argmax(row)
-	 val = max(row)
+	 val = max(row)/sum(row)
 	 if num==0:
 	  ls_1.append([rating_dict[i],val])
 	 if num==1:
@@ -255,7 +267,7 @@ def compute_Semantics_2d():
 	 if num==4:
 	  ls_5.append([rating_dict[i],val])
 
-
+	print("\nRating Bins")
 	print("LATENT SEMANTIC 1")
 	for i in reversed(sorted(ls_1,key=lambda x: x[1])):
 	 print(i)
@@ -514,11 +526,11 @@ def table_joiner():
 
 
 if __name__ == "__main__":
-	# a=compute_Semantics_2c()
+	#a=compute_Semantics_2d()
 	# print a
-	# table_joiner()   #For prepopulation, run only once on new data
-	# h=compute_Semantics_2d()
+	#table_joiner()   #For prepopulation, run only once on new data
+	h=compute_Semantics_2d()
 	# print h
-	b=compute_Semantics_2a(k)
+	#b=compute_Semantics_2a(k)
 	#print b
 	pass
