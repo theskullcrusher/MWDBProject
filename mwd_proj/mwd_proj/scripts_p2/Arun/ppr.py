@@ -1,7 +1,7 @@
 import os
 import sys
 import math
-
+from numpy.linalg import inv
 import numpy
 import pandas
 
@@ -45,12 +45,19 @@ def __normalizeColumns(matrix):
 def __euclideanNorm(series):
     return math.sqrt(series.dot(series))
 
-# PageRank specific functionality:
-
-def __startState(nodes):
+def __startState(setActors,nodes):
     if len(nodes) == 0: raise ValueError("There must be at least one node.")
-    startProb = 1.0 / float(len(nodes))
-    return pandas.Series({node : startProb for node in nodes})
+    startProb = 1.0 / float(len(setActors))
+    seriesdict = {}
+    for node in nodes:
+	  if node in setActors:
+	   seriesdict[node] = startProb
+	  else:
+	   seriesdict[node] = 0.0
+    oldSeries = pandas.Series({node : startProb for node in nodes})
+    returnSeries = pandas.Series(seriesdict)
+    #print returnSeries
+    return returnSeries
 
 def __integrateRandomSurfer(setActors,nodes, transitionProbs, rsp):
     alpha = 1.0 / float(len(setActors)) * rsp
@@ -58,23 +65,14 @@ def __integrateRandomSurfer(setActors,nodes, transitionProbs, rsp):
     #print temp
     return temp
 
-def powerIteration(setActors,transitionWeights, rsp=0.15, epsilon=0.00001, maxIterations=1):
-    # Clerical work:
+def powerIteration(setActors,transitionWeights, rsp=0.15, epsilon=0.00001, maxIterations=1000):
     transitionWeights = pandas.DataFrame(transitionWeights)
     nodes = __extractNodes(transitionWeights)
-    #print(nodes)
-    #print(setActors)
     transitionWeights = __makeSquare(transitionWeights, nodes, default=0.0)
     transitionWeights = __ensureRowsPositive(transitionWeights)
-	
-    # Setup:
-    state = __startState(nodes)
-    #print(state)
+    state = __startState(setActors,nodes)
     transitionProbs = __normalizeRows(transitionWeights)
-    #print(transitionProbs)
     transitionProbs = __integrateRandomSurfer(setActors, nodes, transitionProbs, rsp)
-    #print(transitionProbs)
-    
     # Power iteration:
     for iteration in range(maxIterations):
         oldState = state.copy()
@@ -86,20 +84,13 @@ def powerIteration(setActors,transitionWeights, rsp=0.15, epsilon=0.00001, maxIt
 
     return nodes,state
 
-def closedform(setActors,transitionWeights,rsp=0.85):
+def closedform(setActors,transitionWeights,rsp=0.15):
     transitionWeights = pandas.DataFrame(transitionWeights)
     nodes = __extractNodes(transitionWeights)
-    #print(nodes)
-    #print(setActors)
     transitionWeights = __makeSquare(transitionWeights, nodes, default=0.0)
     transitionWeights = __ensureRowsPositive(transitionWeights)
-    
-    # Setup:
-    state = __startState(nodes)
-    #print(state)
+    state = __startState(setActors,nodes)
     transitionProbs = __normalizeColumns(transitionWeights)
-    print(transitionProbs)
     tpvector = state*rsp
-    answer = numpy.dot(rsp*(numpy.identity(len(transitionProbs))-((1-rsp)*transitionProbs)),tpvector)
-    print(answer)
+    answer = rsp*inv(numpy.identity(len(transitionProbs))-(1-rsp)*transitionProbs).dot(tpvector)
     return nodes,answer
