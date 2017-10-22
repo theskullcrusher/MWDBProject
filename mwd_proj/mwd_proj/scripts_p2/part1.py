@@ -275,7 +275,7 @@ def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5
 			print "\nMax vector values:",max_vals
 			#print "Orig vector:",orig_vect
 			print "ActorIds:",actor_ids
-		return decomposed
+		return decomposed, actors
 
 	if (method.upper() == 'SVD'):
 		#calculate svd
@@ -472,21 +472,22 @@ if __name__ == "__main__":
 	# print e
 	# f=compute_Semantics_1b('LDA','Action',4)
 	# print f
-	# g,z=compute_Semantics_1c('TF-IDF','Lillard, Matthew','cosine',10,5,True)
-	# #print g
-	# h,z=compute_Semantics_1c('TF-IDF','Lillard, Matthew','euclidean',10,5,True)
-	# #print h
-	# i,z=compute_Semantics_1c('SVD','Lillard, Matthew','cosine',10,5,True)
-	# #print i
-	# j,z=compute_Semantics_1c('SVD','Lillard, Matthew','euclidean',10,5,True)
-	# #print j
-	k=compute_Semantics_1d('TF-IDF','Swordfish','cosine',10,5,True)
-	#print k
-	# l=compute_Semantics_1d('TF-IDF','Harry Potter and the Prisoner of Azkaban','euclidean',10,5,True)
-	#print l
-	m=compute_Semantics_1d('SVD','Swordfish','cosine',10,5,True)
-	# #print m
-	n=compute_Semantics_1d('SVD','Harry Potter and the Prisoner of Azkaban','euclidean',10,5,True)
-	#print n
-	o=compute_Semantics_1d('SVD','Pitch Black','cosine',10,5,True)
-	#print o
+	g,z=compute_Semantics_1c('TF-IDF','Lillard, Matthew','cosine',10,5,True)
+	print g
+	h,z=compute_Semantics_1c('TF-IDF','Lillard, Matthew','euclidean',10,5,True)
+	print h
+	i,z=compute_Semantics_1c('SVD','Lillard, Matthew','cosine',10,5,True)
+	print i
+	j,z=compute_Semantics_1c('SVD','Lillard, Matthew','euclidean',10,5,True)
+	print j
+	# k=compute_Semantics_1d('TF-IDF','Swordfish','cosine',10,5,True)
+	# #print k
+	# # l=compute_Semantics_1d('TF-IDF','Harry Potter and the Prisoner of Azkaban','euclidean',10,5,True)
+	# #print l
+	# m=compute_Semantics_1d('SVD','Swordfish','cosine',10,5,True)
+	# # #print m
+	# n=compute_Semantics_1d('SVD','Harry Potter and the Prisoner of Azkaban','euclidean',10,5,True)
+	# #print n
+	# o=compute_Semantics_1d('SVD','Pitch Black','cosine',10,5,True)
+	# #print o
+
