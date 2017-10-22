@@ -93,17 +93,22 @@ def compute_Semantics_1a(method, genre,k_topics):
 				else:
 					V[i, j] = 0.0
 
-		lda = LDA(n_components=k_topics, max_iter=10000, learning_method="batch")
+		lda = LDA(n_components=k_topics, max_iter=10000, learning_method="batch",evaluate_every=10)
 		lda.fit(V)
 		Vt = lda.components_
 		decomposed = lda.transform(V)
-		lda = LDA(n_components=k_topics, max_iter=200, learning_method="batch")
-		print "200 iterations: \n",lda.fit_transform(V)
 
 	'''IN order to give Latenet Semantics some names: Normalize each column in feature factor matrix
 					  and then pick top 5 tags somewhat describing that Latent Semantic '''
 	#normalize columns for most discriminating feature finding
-	normed_Vt = Vt/Vt.sum(axis=0)
+	#normed_Vt = Vt/Vt.sum(axis=0)
+	normed_Vt = Vt.copy()
+
+	x = normed_Vt.max(axis=0)
+	y = normed_Vt.min(axis=0)
+	for i in range(len(normed_Vt)):
+		for j in range(len(normed_Vt[0])):
+			normed_Vt[i][j] = float(normed_Vt[i][j] - y[j]) / float(x[j] - y[j])
 
 	#print "\n\nHo ho!!\n", normed_Vt
 	#print tags_dict
@@ -179,18 +184,23 @@ def compute_Semantics_1b(method, genre, k_topics):
 				else:
 					V[i, j] = 0.0
 
-		lda = LDA(n_components=k_topics, max_iter=10000, learning_method="batch")
+		lda = LDA(n_components=k_topics, max_iter=10000, learning_method="batch",evaluate_every=10)
 		lda.fit(V)
 		Vt = lda.components_
 		decomposed = lda.transform(V)
-		lda = LDA(n_components=k_topics, max_iter=200, learning_method="batch")
-		print "200 iterations: \n",lda.fit_transform(V)
 
 
 	'''SVD,PCA :: IN order to give Latenet Semantics some names: Normalize each column in feature factor matrix
 					  and then pick top 5 actors somewhat describing that Latent Semantic '''
 	#normed_Vt = normalize(Vt, axis=0, norm='max')
-	normed_Vt = Vt / Vt.sum(axis=0)
+	#normed_Vt = Vt / Vt.sum(axis=0)
+	normed_Vt = Vt.copy()
+
+	x = normed_Vt.max(axis=0)
+	y = normed_Vt.min(axis=0)
+	for i in range(len(normed_Vt)):
+		for j in range(len(normed_Vt[0])):
+			normed_Vt[i][j] = float(normed_Vt[i][j] - y[j]) / float(x[j] - y[j])
 
 	for i in range(k_topics):
 		idx = np.argpartition(-normed_Vt[i], 10)[:10]
