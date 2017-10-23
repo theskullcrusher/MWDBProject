@@ -26,7 +26,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("USER")
 args = parser.parse_args()
 '''
-def get_user_mvrating_DF():
+def compute_Semantics_4():
 	#===========================================================================
 	#Generate user - movie_rating matrix.
 	#For each movie, get its rating given by a user. If no rating then give zero
@@ -37,9 +37,9 @@ def get_user_mvrating_DF():
 	dd_total_movie_for_genre = {}
 
 	#Limit is for checking that algorithm works.
-	results = MlUsers.objects.all()[:50]
+	results = MlUsers.objects.all()
 	for usr in results:
-		print "for user" , usr.userid
+#		print "for user" , usr.userid
 		dd_users_mvrating[usr.userid] = {}
 		dd_av_rating_for_genre[usr.userid] = {}
 		dd_total_movie_for_genre[usr.userid] = {}
@@ -49,13 +49,13 @@ def get_user_mvrating_DF():
 #        cur2.execute("SELECT movieid, rating FROM `mlratings` where userid = %s",usr)
 		for data1 in result1:
 
-			user_movie_id = data1.movieid
+			user_movie_id = data1.movieid.movieid
 			user_movie_rating = data1.rating
 
 			if user_movie_id in dd_users_mvrating[usr.userid]:
 				continue
 			else:
-				print user_movie_id,user_movie_rating
+#				print user_movie_id, user_movie_rating
 				dd_users_mvrating[usr.userid][user_movie_id] = user_movie_rating
 
 			#mlmovies_clean maps one movie to a single genre.
@@ -64,16 +64,13 @@ def get_user_mvrating_DF():
 			for genre in genres:
 				genre = genre.strip()
 
-			##Dunno what exactly is mlmovies_clean
-			cur2.execute("SELECT genres FROM `mlmovies_clean` where movieid = %s", {user_movie_id,})
-			result_gen = cur2.fetchone()
-			for data in result_gen:
-				if data[0] in dd_av_rating_for_genre[usr.userid:
-					dd_av_rating_for_genre[usr.userid[data[0]] += user_movie_rating
-					dd_total_movie_for_genre[usr.userid[data[0]] += 1
+			for genre in genres:
+				if genre in dd_av_rating_for_genre[usr.userid]:
+					dd_av_rating_for_genre[usr.userid][genre] += user_movie_rating
+					dd_total_movie_for_genre[usr.userid][genre] += 1.0
 				else:
-					dd_av_rating_for_genre[usr.userid[data[0]] = user_movie_rating;
-					dd_total_movie_for_genre[usr.userid][data[0]] = 1
+					dd_av_rating_for_genre[usr.userid][genre] = user_movie_rating;
+					dd_total_movie_for_genre[usr.userid][genre] = 1.0
 
 		#WE need to do this again for mltags because it does not have a rating,
 		# give rating = avg rating give to a particular genre to by a user.
@@ -83,25 +80,37 @@ def get_user_mvrating_DF():
 		result2 = MlTags.objects.filter(userid=usr)
 		for data in result2:
 			#print data1
-			user_movie_id = data.movieid
+			user_movie_id = data.movieid.movieid
 			##Dunno what exactly is mlmovies_clean
-			cur2.execute("SELECT genres FROM `mlmovies_clean` where movieid = %s", {user_movie_id, })
-			mv_genre = cur2.fetchone()[0]
 
-			if user_movie_id in dd_users_mvrating[usr.]:
+			genres = MlMovies.objects.filter(movieid=user_movie_id).first()
+			genres = genres.split(', ')
+			for genre in genres:
+				genre = genre.strip()
+
+			if user_movie_id in dd_users_mvrating[usr.userid]:
 				continue
 			else:
-				print user_movie_id
-				dd_users_mvrating[usr.userid][user_movie_id] = dd_av_rating_for_genre[usr.userid[mv_genre]/dd_total_movie_for_genre[usr.userid][mv_genre]
+#				print user_movie_id
+				val = 0.0
+				for genre in genres:
+					val	+= float(dd_av_rating_for_genre[usr.userid][genre])/float(dd_total_movie_for_genre[usr.userid][genre])
+				dd_users_mvrating[usr.userid][user_movie_id] = val/float(len(genres))
 
 		#Make rating of other movies to zero.
-		genreNames = list(MlMovies.objects.values_list('movieid',flat=True).distinct())
+		movieIDs = list(MlMovies.objects.values_list('movieid',flat=True).distinct())
 
-		for keyval in genreNames:
+		for keyval in movieIDs:
 			if keyval in dd_users_mvrating[usr.userid]:
 				continue
 			else:
-				dd_users_mvrating[usr.userid][key] = 0
+				dd_users_mvrating[usr.userid][key] = 0.0
+
+	user_ids_df = pd.DataFrame(usr_mvrating_matrix.columns.values, columns=["user_ids"] )
+	movie_ids_df = pd.DataFrame(usr_mvrating_matrix.index, columns=["movie_ids"] )
+
+	user_ids_df.to_csv("user_ids.csv",sep="\t")
+	movie_ids_df.to_csv("movie_ids.csv", sep="\t")
 
 	#pprint.pprint(dd_users_genre)
 	usr_mvrating_matrix = pd.DataFrame(dd_users_mvrating)
@@ -118,7 +127,7 @@ def get_user_mvrating_DF():
 	return usr_mvrating_matrix
 
 if __name__ == "__main__":
-	usr_mvrating_matrix = get_user_mvrating_DF()
+	usr_mvrating_matrix = compute_Semantics_4()
 	# usr_genre_matrix = usr_genre_matrix.T
 	# pprint.pprint(usr_genre_matrix)
 	usr_mvrating_matrix.to_csv("factorization_1_user_mvrating.csv", sep='\t')
