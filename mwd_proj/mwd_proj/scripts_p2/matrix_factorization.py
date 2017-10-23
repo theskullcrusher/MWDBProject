@@ -105,6 +105,16 @@ def get_user_mvrating_DF():
 
 	#pprint.pprint(dd_users_genre)
 	usr_mvrating_matrix = pd.DataFrame(dd_users_mvrating)
+
+	#print list(usr_mvrating_matrix.columns.values)
+	#print list(usr_mvrating_matrix.index)
+
+	user_ids_df = pd.DataFrame(usr_mvrating_matrix.columns.values, columns=["user_ids"] )
+	movie_ids_df = pd.DataFrame(usr_mvrating_matrix.index, columns=["movie_ids"] )
+
+	user_ids_df.to_csv("user_ids.csv",sep="\t")
+	movie_ids_df.to_csv("movie_ids.csv", sep="\t"
+
 	return usr_mvrating_matrix
 
 if __name__ == "__main__":
