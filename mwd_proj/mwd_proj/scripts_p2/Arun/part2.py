@@ -26,13 +26,13 @@ import pandas as pd
 from sklearn.cluster import KMeans
 
 
-def compute_Semantics_2a(k=3, max_actors=5):
+def compute_Semantics_2a(k=3, max_actors=3):
 	"""Actor-actor similarity with svd and cluster grouping"""
 	print "\n\n"
 	actorobjs = ImdbActorInfo.objects.values_list('actorid','name')
 	actor_dict = {x[0]:x[1] for x in actorobjs}
 	#print actor_dict
-	dict_semantics = defaultdict(list)
+	dict_semantics = defaultdict(dict)
 	dict_grouping = defaultdict(list)
 	matrix, actor_list = compute_Semantics_1c('SVD','Lillard, Matthew','cosine',10,5,False)
 
@@ -52,22 +52,26 @@ def compute_Semantics_2a(k=3, max_actors=5):
 		id_ = np.argpartition(row, -max_actors)[-max_actors:]
 		e1 = []
 		for e in id_:
-			e1.append(actor_dict[actor_list[e]])
-		dict_semantics[i].append(e1)
+			local_actor_id = int(actor_list[e])
+			new_dict = print_actor_vector.main(local_actor_id,0)
+			sorted_dict = sorted(new_dict.items(), key=operator.itemgetter(1),reverse=True)
+			for j in range(max_actors):
+				if sorted_dict[j][1]!=0.0:
+					if sorted_dict[j][0] in dict_semantics[i]:
+						dict_semantics[i][sorted_dict[j][0]] += sorted_dict[j][1]
+					else:
+						dict_semantics[i][sorted_dict[j][0]] = sorted_dict[j][1]
 		i+=1
 	
 	print("-------------------------------SEMANTICS-------------------------------")
 	print("LATENT SEMANTIC 1")
-	for i in dict_semantics[1]:
-		print(i)
+	print sorted(dict_semantics[1].items(), key=operator.itemgetter(1),reverse=True)
 
 	print("LATENT SEMANTIC 2")
-	for i in dict_semantics[2]:
-		print(i)
+	print sorted(dict_semantics[2].items(), key=operator.itemgetter(1),reverse=True)
 
 	print("LATENT SEMANTIC 3")
-	for i in dict_semantics[3]:
-		print(i)
+	print sorted(dict_semantics[3].items(), key=operator.itemgetter(1),reverse=True)
 
 	data = pd.DataFrame(u,columns=['Latent1','Latent2','Latent3'])
 	kmeans = KMeans(n_clusters=3)
@@ -76,7 +80,7 @@ def compute_Semantics_2a(k=3, max_actors=5):
 
 	for i in range(len(actor_list)):
 		dict_grouping[labels[i]].append(actor_dict[actor_list[i]])
-	print("-------------------------------GROUPING-------------------------------")
+	print("\n""-------------------------------GROUPING-------------------------------")
 	print("GROUP 1")
 	for i in dict_grouping[0]:
 		print i,
@@ -90,12 +94,12 @@ def compute_Semantics_2a(k=3, max_actors=5):
 		print i,
 
 
-def compute_Semantics_2b(k=3, max_actors=5):
+def compute_Semantics_2b(k=3, max_actors=3):
 	"""Coactor-Coactor similarity with svd and cluster grouping"""
 	print "\n\n"
 	actorobjs = ImdbActorInfo.objects.values_list('actorid','name')
 	actor_dict = {x[0]:x[1] for x in actorobjs}
-	dict_semantics = defaultdict(list)
+	dict_semantics = defaultdict(dict)
 	dict_grouping = defaultdict(list)
 	matrix, actor_dict_list = coactor_matrix()
 	actor_list = []
@@ -120,24 +124,25 @@ def compute_Semantics_2b(k=3, max_actors=5):
 	i=1
 	for row in u.T:
 		id_ = np.argpartition(row, -max_actors)[-max_actors:]
-		e1 = []
 		for e in id_:
-			e1.append(actor_dict[actor_list[e]])
-		dict_semantics[i].append(e1)
+			coactor_score= 0
+			for j in range(len(actor_list)):
+				coactor_score += matrix[e][j]
+			dict_semantics[i][actor_dict[actor_list[e]]] = coactor_score
 		i+=1
 	
 	print("-------------------------------SEMANTICS-------------------------------")
 	print("LATENT SEMANTIC 1")
 	for i in dict_semantics[1]:
-		print(i)
+		print i,
 
-	print("LATENT SEMANTIC 2")
+	print("\n""LATENT SEMANTIC 2")
 	for i in dict_semantics[2]:
-		print(i)
+		print i,
 
-	print("LATENT SEMANTIC 3")
+	print("\n""LATENT SEMANTIC 3")
 	for i in dict_semantics[3]:
-		print(i)
+		print i,
 
 	#KMeans for finding clusters
 	data = pd.DataFrame(u,columns=['Latent1','Latent2','Latent3'])
@@ -147,7 +152,7 @@ def compute_Semantics_2b(k=3, max_actors=5):
 
 	for i in range(len(actor_list)):
 		dict_grouping[labels[i]].append(actor_dict[actor_list[i]])
-	print("-------------------------------GROUPING-------------------------------")
+	print("\n""-------------------------------GROUPING-------------------------------")
 	print("GROUP 1")
 	for i in dict_grouping[0]:
 		print i,
@@ -632,10 +637,10 @@ def table_joiner():
 if __name__ == "__main__":
 	a=compute_Semantics_2a(3,5)
 	#print a
-	b=compute_Semantics_2b(3,5) #Arguement 1 - Number of latent features, Arguement 2 - Number of actors a latent feature describes
+	#b=compute_Semantics_2b(3,5) #Arguement 1 - Number of latent features, Arguement 2 - Number of actors a latent feature describes
 	#print b
 	#table_joiner()   #For prepopulation, run only once on new data
-	g=compute_Semantics_2c()
+	#g=compute_Semantics_2c()
 	# print g
-	h=compute_Semantics_2d()
+	#h=compute_Semantics_2d()
 	# print h
