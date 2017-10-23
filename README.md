@@ -19,10 +19,11 @@ MWDB course Project Phase 2
         >> import django
         >> django.setup()
         >> from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, print_user_vector, print_actor_vector, print_movie_vector)
-        >> from mwd_proj.scripts_p2 import part1
+        >> from mwd_proj.scripts_p2 import (part1, part4)
         >> from mwd_proj.scripts_p2.Arun import (part2, part3)
         >> from mwd_proj.phase2.models import *
         >> gt = GenomeTags.objects.get(tagid=13) #write django queries instead of sql
+
 
 2-a. Setting up database:
  Create or change root user for MySQl with password: surajshah
@@ -42,37 +43,26 @@ meta-data tables. This step is ORed with 2-a, based on the need.
 > python populate_db.py
 > cd MWDBProject/mwd_proj/mwd_proj/utils
 > python utils.py
-> cd MWDBProject/mwd_proj/mwd_proj/scripts
+> cd MWDBProject/mwd_proj/mwd_proj/scripts_p2
 Now here all tasks1 to task4 have a method called tf() which is commented in the __name__=="__main__" call because it needs to be executed only once to populate meta-data. Remove that commented call from all 4 task and just run the tf() methods once and comment the call to them again.
 
 
 3. Instructions for testing all 4 tasks:
-Task1: To test task 1 run the command: (in the MWDBProject/mwd_proj/med_proj/scripts directory)
-<actor-id> eg: 1575755, 506840, 
-<model> eg: TF, TF-IDF
-
-> python print_actor_vector.py <actor-id> <model>  #eg:  python print_actor_vector.py 506840 TF
-
-
-Task2: To test task 2 run the command: (in the MWDBProject/mwd_proj/med_proj/scripts directory)
-<genre> eg: Action, Documentary
-<model> eg: TF, TF-IDF
-
-> python print_genre_vector.py <genre> <model>  #eg:  python print_genre_vector.py Documentary TF-IDF
+--> Open terminal export django settings and log into ipython
+> export DJANGO_SETTINGS_MODULE=mwd_proj.settings
+> ipython
+        >> import django
+        >> django.setup()
+        >> from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, print_user_vector, print_actor_vector, print_movie_vector)
+        >> from mwd_proj.scripts_p2 import (part1)
+        >> from mwd_proj.scripts_p2.Arun import (part2, part3)
+        >> from mwd_proj.scripts_p2.Ninad import ()
+        >> from mwd_proj.phase2.models import *
 
 
-Task3: To test task 3 run the command: (in the MWDBProject/mwd_proj/med_proj/scripts directory)
-<userid> eg: 146, 9316, 1988, 30167
-<model> eg: TF, TF-IDF
-
-> python print_user_vector.py <userid> <model>  #eg:  python print_user_vector.py 1988 TF
 
 
-Task4: To test task 4 run the command: (in the MWDBProject/mwd_proj/med_proj/scripts directory)
-<genre> eg: Action, Documentary, Horror
-<model> eg: TF-IDF-DIFF, P-DIFF1, P-DIFF2
 
-> python differentiate_genre.py <genre1> <genre2> <model>  #eg:  python differentiate_genre.py Action Drama P-DIFF2
 
 #NOTE: Please note that if you run tf() method along with each task, it will take longer to execute. Please comment the call to this method if removed
 
@@ -152,7 +142,3 @@ Task4: To test task 4 run the command: (in the MWDBProject/mwd_proj/med_proj/scr
 > python differentiate_genre.py <genre1> <genre2> <model>  #eg:  python differentiate_genre.py Action Drama P-DIFF2
 
 #NOTE: Please note that if you run tf() method along with each task, it will take longer to execute. Please comment the call to this method if removed
-
-
-
-

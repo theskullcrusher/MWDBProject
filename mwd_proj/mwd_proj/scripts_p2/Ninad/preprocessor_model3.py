@@ -110,13 +110,7 @@ def compute_Semantics_4():
 			else:
 				dd_users_mvrating[usr.userid][keyval] = 0.0
 
-	user_ids_df = pd.DataFrame(usr_mvrating_matrix.columns.values, columns=["user_ids"] )
-	movie_ids_df = pd.DataFrame(usr_mvrating_matrix.index, columns=["movie_ids"] )
 
-	user_ids_df.to_csv("user_ids.csv",sep="\t")
-	movie_ids_df.to_csv("movie_ids.csv", sep="\t")
-
-	#pprint.pprint(dd_users_genre)
 	usr_mvrating_matrix = pd.DataFrame(dd_users_mvrating)
 
 	#print list(usr_mvrating_matrix.columns.values)

@@ -7,3 +7,5 @@ sudo apt-get install gunicorn supervisor nginx
 sudo apt-get install mysql-server mysql-client
 sudo apt-get build-dep python-psycopg2
 sudo apt-get install python-mysqldb
+sudo apt-get install python-tk
+
