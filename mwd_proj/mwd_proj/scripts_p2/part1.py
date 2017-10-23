@@ -30,6 +30,7 @@ from copy import deepcopy
 
 def compute_Semantics_1a(method, genre,k_topics):
 	"""Here the data is (genre X tags) with each cell having Tf-IDF values for that genre and tag"""
+	print "\n\n\n============================================"
 	#All genres
 	_genres = MlMovies.objects.values_list('genres', flat=True)
 	genres = []
@@ -129,6 +130,7 @@ def compute_Semantics_1a(method, genre,k_topics):
 
 def compute_Semantics_1b(method, genre, k_topics):
 	'''Here the data is (genre X actors) with each cell having Tf-IDF values for that genre and actor'''
+	print "\n\n\n============================================"
 	#All genres
 	_genres = MlMovies.objects.values_list('genres', flat=True)
 	genres = []
@@ -218,6 +220,7 @@ def compute_Semantics_1b(method, genre, k_topics):
 
 def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5, p_flag=True):
 	'''Here the data is (actor X tag) with each cell having TF-IDF values for that Actor and Tag which we use to compute n nearest neighbors'''
+	print "\n\n\n============================================"
 	#All actors
 	actorobjs = ImdbActorInfo.objects.values_list('actorid','name')
 	actors_dict = {x[0]:x[1] for x in actorobjs}
@@ -326,6 +329,7 @@ def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5
 
 def compute_Semantics_1d(method, movie, measure, similarity_count=10, k_topics=5, p_flag=True):
 	'''Here the data is (actor X tag) with each cell having TF-IDF values for that Actor and Tag which we use to compute n nearest neighbors'''
+	print "\n\n\n============================================"
 	#All actors
 	actorobjs = ImdbActorInfo.objects.values_list('actorid','name')
 	actors_dict = {x[0]:x[1] for x in actorobjs}
