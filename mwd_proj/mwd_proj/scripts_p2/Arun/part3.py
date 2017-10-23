@@ -23,9 +23,9 @@ from django.db.models import Q
 from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, print_user_vector, print_actor_vector, part1)
 from mwd_proj.scripts_p2.Arun import ppr
 
-def compute_Semantics_3a():
+def compute_Semantics_3a(setActors):
 	print "\n\n"
-	setActors = set([1860883,486691,1335137,901175])
+	#setActors = set([1860883,486691,1335137,901175])
 	actor_dict = {}
 	act = MovieActor.objects.values_list('actorid', flat=True).distinct()
 	actor_count = act.count()
@@ -83,8 +83,8 @@ def coactor_matrix():
 	return results, actor_dict	
 
 
-def compute_Semantics_3b():
-	setActors = set([2312401])
+def compute_Semantics_3b(setActors):
+	#setActors = set([2312401])
 	results, actor_dict = coactor_matrix()
 	setIndex = set([])
 	for actorid in setActors:
@@ -110,6 +110,7 @@ def compute_Semantics_3b():
 		print(inv_a[ea], ac.name, s[ea])
 
 if __name__ == "__main__":
-	compute_Semantics_3a()
-	compute_Semantics_3b()
+	setActors = set([1860883,486691,1335137,901175])
+	compute_Semantics_3a(setActors)
+	compute_Semantics_3b(setActors)
 	
