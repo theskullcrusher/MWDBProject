@@ -36,7 +36,7 @@ def compute_Semantics_3a():
 	for actorid in setActors:
 		#print(actor_dict[2312401])
 		setIndex.add(actor_dict[actorid])
-	results = part1.compute_Semantics_1c('TF-IDF','Lillard, Matthew','cosine',10,5,False)
+	results, xyz = part1.compute_Semantics_1c('TF-IDF','Lillard, Matthew','cosine',10,5,False)
 	#print(len(results))
 	#print((results[0]))
 	nodes,s=ppr.closedform(setIndex,results,0.85)
