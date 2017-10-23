@@ -19,8 +19,9 @@ MWDB course Project Phase 2
         >> import django
         >> django.setup()
         >> from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, print_user_vector, print_actor_vector, print_movie_vector)
-        >> from mwd_proj.scripts_p2 import (part1, part4)
+        >> from mwd_proj.scripts_p2 import (part1)
         >> from mwd_proj.scripts_p2.Arun import (part2, part3)
+        >> from mwd_proj.scripts_p2.Ninad import (part4)
         >> from mwd_proj.phase2.models import *
         >> gt = GenomeTags.objects.get(tagid=13) #write django queries instead of sql
 
@@ -56,16 +57,80 @@ Now here all tasks1 to task4 have a method called tf() which is commented in the
         >> from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, print_user_vector, print_actor_vector, print_movie_vector)
         >> from mwd_proj.scripts_p2 import (part1)
         >> from mwd_proj.scripts_p2.Arun import (part2, part3)
-        >> from mwd_proj.scripts_p2.Ninad import ()
+        >> from mwd_proj.scripts_p2.Ninad import (part4)
         >> from mwd_proj.phase2.models import *
 
+        #Note - print the output variables to get decomposed matrices
+
+        Task1:
+
+        1a) a = part1.compute_Semantics_1a('<method>','<genre>',<k>)
+            where: <method> = SVD, PCA or LDA
+                   <genre> = Action, Horror, etc
+                   <k> = No of latent_semantics to be considered
+            eg: a=part1.compute_Semantics_1a('SVD','Action',4)
+
+        1b) b = part1.compute_Semantics_1b('<method>','<genre>',<k>)
+            where: <method> = SVD, PCA or LDA
+                   <genre> = Action, Horror, etc
+                   <k> = No of latent_semantics to be considered
+            eg: b=part1.compute_Semantics_1b('SVD','Action',4)
+
+        1c) c, z = part1.compute_Semantics_1c('<method>','<actor-name>','<similarity-measure>',<actors-count>,<k>,<flag>)
+            where:  <method> = TF-IDF, SVD
+                    <actor-name> = Lillard, Matthew; Affleck, Ben; etc
+                    <similarity-measure> = cosine, euclidean
+                    <actors-count> = No of similar actors to be returned
+                    <k> = No of latent semantics to be considered for computations
+                    <flag> = True, False - displays output on stdout if true
+            eg: c, z = part1.compute_Semantics_1c('TF-IDF','Lillard, Matthew','cosine',10,5,True)
+            eg: c, z = part1.compute_Semantics_1c('SVD','Lillard, Matthew','cosine',10,5,True)
+
+       1d) d = part1.compute_Semantics_1d('<method>','<movie-name>',<actors-count>,<k>,<flag>)
+            where:  <method> = TF-IDF, SVD
+                    <movie-name> = Swordfish, Harry Potter and the Prisoner of Azkaban, Pitch Black, etc
+                    <actors-count> = No of similar actors to be returned
+                    <k> = No of latent semantics to be considered for computations
+                    <flag> = True, False - displays output on stdout if true
+            eg: d = part1.compute_Semantics_1d('SVD','Swordfish',10,5,True)
+
+        Task2:
+
+        2a) a = part2.compute_Semantics_2a(<k>,<max-actors>)
+            where:  <k> = No of latent semantics
+                    <max-actors> = maximum actors to output in each group
+            eg: a = part2.compute_Semantics_2a(3,5)
+
+        2b) b = part2.compute_Semantics_2b(<k>,<max-actors>)
+            where:  <k> = No of latent semantics
+                    <max-actors> = maximum actors to output in each group
+            eg: b = part2.compute_Semantics_2b(3,5)
+
+        2c) eg: c = part2.compute_Semantics_2c()
+
+        2d) eg: d = part2.compute_Semantics_2d()
+
+        Task3:
+
+        3a) part3.compute_Semantics_3a(<actor-ids-list>)
+            where:  <actor-ids-list> = set([1860883,486691,1335137,901175]), etc
+            eg: part3.compute_Semantics_3a(set([1860883,486691,1335137,901175]))
+
+        3b) part3.compute_Semantics_3b(<actor-ids-list>)
+            where:  <actor-ids-list> = set([1860883,486691,1335137,901175]), etc
+            eg: part3.compute_Semantics_3b(set([1860883,486691,1335137,901175]))
 
 
+        Task4:
 
+        #Please note this task requires following preprocessing to be run only once:
+            > cd MWDBProject/mwd_proj/mwd_proj/scripts_p2/Ninad
+            > python preprocessor_model3.py
+            > python preprocessor_model3_comp.py
 
-
-#NOTE: Please note that if you run tf() method along with each task, it will take longer to execute. Please comment the call to this method if removed
-
+        4a) part4.compute_Semantics_4(<user-id>)
+            where: <user-id> = 1027, etc
+            eg: part4.compute_Semantics_4(1027)
 
 
 

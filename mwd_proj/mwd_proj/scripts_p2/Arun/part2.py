@@ -637,10 +637,10 @@ def table_joiner():
 if __name__ == "__main__":
 	a=compute_Semantics_2a(3,5)
 	#print a
-	#b=compute_Semantics_2b(3,5) #Arguement 1 - Number of latent features, Arguement 2 - Number of actors a latent feature describes
+	b=compute_Semantics_2b(3,5) #Arguement 1 - Number of latent features, Arguement 2 - Number of actors a latent feature describes
 	#print b
 	#table_joiner()   #For prepopulation, run only once on new data
-	#g=compute_Semantics_2c()
+	g=compute_Semantics_2c()
 	# print g
-	#h=compute_Semantics_2d()
+	h=compute_Semantics_2d()
 	# print h

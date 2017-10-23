@@ -105,7 +105,7 @@ def compute_Semantics_4(userid):
 	userNotWatched={}
 
 	for mv_id in movie_recommendations:
-		mid = str(int(mv_id))
+		mid = int(mv_id)
 		#print type(mid)
 		if mid in userWatchedMovies:
 			#print "watched found"
