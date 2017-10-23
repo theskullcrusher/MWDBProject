@@ -59,7 +59,7 @@ def populate_db():
 				if n == 0:
 					print row
 					continue
-				row[2] = row[2].replace("|", ",")
+				row[3] = row[3].replace("|", ",")
 				try:
 					MlMovies.objects.create(movieid=row[0], moviename=row[1], year=row[2], genres=row[3])
 					pass
