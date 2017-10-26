@@ -48,7 +48,7 @@ def tf():
 def main(genre):
 	"This model takes as input genre to give tfidf actor vector"
 	try:
-		tf()
+		#tf()
 		#initialize dict of all actors
 		tf_dict = {}
 		all_actors_ = ImdbActorInfo.objects.values_list('actorid', flat=True)	

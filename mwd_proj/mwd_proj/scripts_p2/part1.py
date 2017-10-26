@@ -28,7 +28,7 @@ from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from copy import deepcopy
 
 
-def compute_Semantics_1a(method, genre,k_topics):
+def compute_Semantics_1a(method, genre_,k_topics):
 	"""Here the data is (genre X tags) with each cell having Tf-IDF values for that genre and tag"""
 	print "\n\n\n============================================"
 	#All genres
@@ -63,7 +63,7 @@ def compute_Semantics_1a(method, genre,k_topics):
 		print "\n\nU:", len(U), len(U[0]), "Sigma: ", sigma.shape, " V: ", Vt.shape, "\n\n"
 		#print U
 		decomposed = U
-		print "For genre",genre,"Latent semantics are:", U[genres.index(genre)]
+		print "For genre",genre_,"Latent semantics are:", U[genres.index(genre_)]
 
 
 	if(method.upper() == 'PCA'):
@@ -78,7 +78,7 @@ def compute_Semantics_1a(method, genre,k_topics):
 		Vt = pca.components_
 		#print Vt
 		decomposed = pca.transform(V_std)
-		print "For genre",genre,"Latent semantics are:", decomposed[genres.index(genre)]
+		print "For genre",genre_,"Latent semantics are:", decomposed[genres.index(genre_)]
 
 	if (method.upper() == 'LDA'):
 		'''TO:DO://  Create matrix with doc as rows and words as column s with each cell having freq count not tf-idf'''
@@ -99,7 +99,7 @@ def compute_Semantics_1a(method, genre,k_topics):
 		lda.fit(V)
 		Vt = lda.components_
 		decomposed = lda.transform(V)
-		print "For genre",genre,"Latent semantics are:", decomposed[genres.index(genre)]
+		print "For genre",genre_,"Latent semantics are:", decomposed[genres.index(genre_)]
 
 	'''IN order to give Latenet Semantics some names: Normalize each column in feature factor matrix
 					  and then pick top 5 tags somewhat describing that Latent Semantic '''
@@ -128,7 +128,7 @@ def compute_Semantics_1a(method, genre,k_topics):
 	return decomposed
 
 
-def compute_Semantics_1b(method, genre, k_topics):
+def compute_Semantics_1b(method, genre_, k_topics):
 	'''Here the data is (genre X actors) with each cell having Tf-IDF values for that genre and actor'''
 	print "\n\n\n============================================"
 	#All genres
@@ -160,7 +160,7 @@ def compute_Semantics_1b(method, genre, k_topics):
 		# print "\n\nSigma = \t",sigma
 		print "\n\nU:", len(U), len(U[0]), "Sigma: ", sigma.shape, " V: ", Vt.shape, "\n\n"
 		#print U
-		print "For genre",genre,"Latent semantics are:", U[genres.index(genre)]
+		print "For genre",genre_,"Latent semantics are:", U[genres.index(genre_)]
 		decomposed = U
 
 	if (method.upper() == 'PCA'):
@@ -175,7 +175,7 @@ def compute_Semantics_1b(method, genre, k_topics):
 		Vt = pca.components_
 		# print Vt
 		decomposed = pca.transform(V_std)
-		print "For genre",genre,"Latent semantics are:", decomposed[genres.index(genre)]
+		print "For genre",genre_,"Latent semantics are:", decomposed[genres.index(genre_)]
 
 	if (method.upper() == 'LDA'):
 		'''TO:DO://  Create matrix with doc as rows and words as column s with each cell having freq count not tf-idf'''
@@ -193,7 +193,7 @@ def compute_Semantics_1b(method, genre, k_topics):
 		lda.fit(V)
 		Vt = lda.components_
 		decomposed = lda.transform(V)
-		print "For genre",genre,"Latent semantics are:", decomposed[genres.index(genre)]
+		print "For genre",genre_,"Latent semantics are:", decomposed[genres.index(genre_)]
 
 
 	'''SVD,PCA :: IN order to give Latenet Semantics some names: Normalize each column in feature factor matrix
@@ -258,7 +258,7 @@ def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5
 		elif measure.lower() == 'euclidean':
 			decomposed = euclidean_distances(V)
 			for i in range(len(actors)):
-				for j in range(len(tags)):
+				for j in range(len(actors)):
 					if decomposed[i,j] != float(0.0):
 						decomposed[i,j] = 1.0/decomposed[i,j]
 
@@ -300,7 +300,7 @@ def compute_Semantics_1c(method, actor, measure, similarity_count=10, k_topics=5
 		elif measure.lower() == 'euclidean':
 			decomposed = euclidean_distances(U)
 			for i in range(len(actors)):
-				for j in range(len(tags)):
+				for j in range(len(actors)):
 					if decomposed[i,j] != float(0.0):
 						decomposed[i,j] = 1.0/decomposed[i,j]
 
