@@ -482,18 +482,18 @@ if __name__ == "__main__":
 	print f
 	g,z=compute_Semantics_1c('TF-IDF','Lillard, Matthew','cosine',10,5,True)
 	print g
-	h,z=compute_Semantics_1c('TF-IDF','Lillard, Matthew','euclidean',10,5,True)
-	print h
+	# h,z=compute_Semantics_1c('TF-IDF','Lillard, Matthew','euclidean',10,5,True)
+	# print h
 	i,z=compute_Semantics_1c('SVD','Lillard, Matthew','cosine',10,5,True)
 	print i
-	j,z=compute_Semantics_1c('SVD','Lillard, Matthew','euclidean',10,5,True)
-	print j
+	# j,z=compute_Semantics_1c('SVD','Lillard, Matthew','euclidean',10,5,True)
+	# print j
 	k=compute_Semantics_1d('TF-IDF','Swordfish',10,5,True)
 	#print k
 	m=compute_Semantics_1d('SVD','Swordfish',10,5,True)
 	# #print m
-	n=compute_Semantics_1d('SVD','Harry Potter and the Prisoner of Azkaban',10,5,True)
-	#print n
-	o=compute_Semantics_1d('SVD','Pitch Black',10,5,True)
-	#print o
+	# n=compute_Semantics_1d('SVD','Harry Potter and the Prisoner of Azkaban',10,5,True)
+	# #print n
+	# o=compute_Semantics_1d('SVD','Pitch Black',10,5,True)
+	# #print o
 

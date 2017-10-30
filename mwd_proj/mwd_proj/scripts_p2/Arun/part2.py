@@ -180,6 +180,7 @@ def compute_Semantics_2d():
 	rating_dict = {}
 	rate = Task7.objects.values_list('rating', flat=True).distinct()
 	rating_count = rate.count()
+	rating_count = 6
 	for n, each in enumerate(rate):
 		rating_dict[n] = each
 
@@ -635,12 +636,12 @@ def table_joiner():
 
 
 if __name__ == "__main__":
-	a=compute_Semantics_2a(3,5)
-	#print a
-	b=compute_Semantics_2b(3,5) #Arguement 1 - Number of latent features, Arguement 2 - Number of actors a latent feature describes
-	#print b
-	#table_joiner()   #For prepopulation, run only once on new data
-	g=compute_Semantics_2c()
+	# a=compute_Semantics_2a(3,5)
+	# #print a
+	# b=compute_Semantics_2b(3,5) #Arguement 1 - Number of latent features, Arguement 2 - Number of actors a latent feature describes
+	# #print b
+	# #table_joiner()   #For prepopulation, run only once on new data
+	# g=compute_Semantics_2c()
 	# print g
 	h=compute_Semantics_2d()
 	# print h

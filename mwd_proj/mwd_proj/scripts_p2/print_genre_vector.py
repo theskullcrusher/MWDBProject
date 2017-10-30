@@ -48,7 +48,7 @@ def tf():
 def main(genre, flag=0):
 	"This model takes as input genre  to give tfidf tag vector"
 	try:
-		tf()
+		#tf()
 		#initialize dict of all tags
 		tf_dict = {}
 		if flag == 0:
