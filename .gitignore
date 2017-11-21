@@ -99,3 +99,8 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+
+#dataset large
+dataset_p3/
+mwdb_suraj_phase3_initial.sql
