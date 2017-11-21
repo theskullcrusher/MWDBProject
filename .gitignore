@@ -103,4 +103,4 @@ ENV/
 
 #dataset large
 dataset_p3/
-mwdb_suraj_phase3_initial.sql.zip
+mwdb_suraj_phase3_initial.sql
