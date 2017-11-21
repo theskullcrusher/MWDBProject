@@ -20,28 +20,28 @@ def normalize_tables():
 	print "MLRatings max {} min {} range {}".format(max_val, min_val, range_)
 	records = MlRatings.objects.all()
 
-	transaction.set_autocommit(False)
+	#transaction.set_autocommit(False)
 
 	for record in records[0:len(records)/3]:
 		val = long(record.timestamp)
 		norm_val = float(val - min_val) / float(range_)
 		record.norm_weight = str(norm_val)
-#		record.save()
+		record.save()
 
 	for record in records[len(records)/3:(len(records)*2)/3]:
 		val = long(record.timestamp)
 		norm_val = float(val - min_val) / float(range_)
 		record.norm_weight = str(norm_val)
-#		record.save()
+		record.save()
 
 
 	for record in records[(len(records)*2)/3:len(records)]:
 		val = long(record.timestamp)
 		norm_val = float(val - min_val) / float(range_)
 		record.norm_weight = str(norm_val)
-#		record.save()
+		record.save()
 
-	transaction.commit()
+	#transaction.commit()
 
 
 	max_val = long(MlTags.objects.all().aggregate(Max('timestamp'))['timestamp__max'])
@@ -57,9 +57,9 @@ def normalize_tables():
 		val = long(record.timestamp)
 		norm_val = float(val - min_val) / float(range_)
 		record.norm_weight = str(norm_val)
-#		record.save()
+		record.save()
 
-	transaction.commit()
+	#transaction.commit()
 
 
 	max_val = long(MovieActor.objects.all().aggregate(Max('actor_movie_rank'))['actor_movie_rank__max'])
@@ -74,10 +74,10 @@ def normalize_tables():
 		val = long(record.actor_movie_rank)
 		norm_val = float(val - min_val) / float(range_)
 		record.norm_rank = str(norm_val)
-#		record.save()
+		record.save()
 
-	transaction.commit()
-	transaction.set_autocommit(True)
+	#transaction.commit()
+	#transaction.set_autocommit(True)
 
 if __name__ == "__main__":
 	normalize_tables()

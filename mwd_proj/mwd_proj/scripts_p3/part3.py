@@ -25,16 +25,14 @@ from sklearn.decomposition import LatentDirichletAllocation as LDA
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from copy import deepcopy
 from mwd_proj.scripts_p3 import print_movie_vector
+import json
 
 
-def compute_Semantics_3a(method, movie_,k_topics):
+def compute_Semantics_3a(method, k_topics):
 	"""Here the data is (movie X tags) with each cell having Tf-IDF values for that movie and tag"""
 	print "\n\n\n============================================"
 	#All movies
-	_movies = MlMovies.objects.values_list('movies', flat=True)
-	movies = []
-	for movie in _movies:
-		movies.extend(movie.split(','))
+	movies = MlMovies.objects.values_list('moviename', flat=True)
 	movies = [x.strip() for x in movies]
 	movies = list(set(movies))
 	#All tags
@@ -48,11 +46,22 @@ def compute_Semantics_3a(method, movie_,k_topics):
 	'''get tf-idfs vectors for movie-tag pairs and fill the matrix
 		0 if movie-tag doesn't exist'''
 
+	to_save_dict = {}
+	to_save_dict['movies'] = movies 
+	to_save_dict['tags'] = tags
+	values = {}
+	#Run only for the first time
 	for i in range(len(movies)):
 		# tf_idf = compute_tf_idf_movie(cur_movie,"TF-IDF")
 		tf_idf = print_movie_vector.main(str(movies[i]), 1)
 		for j in range(len(tags)):
 			V[i, j] = tf_idf[tags[j]]
+			values[(i,j)] = tf_idf[tags[j]]
+
+	to_save_dict['values'] = values
+	with open('pre_movie_tfidf.json','w+') as f:
+		json.dump(to_save_dict, f)
+
 
 	if(method.upper() == 'SVD'):
 		'''  SVD  Calculation '''
@@ -131,6 +140,6 @@ def compute_Semantics_3a(method, movie_,k_topics):
 
 
 if __name__ == "__main__":
-	
+	a=compute_Semantics_3a('SVD',500)
 
 
