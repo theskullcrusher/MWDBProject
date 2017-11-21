@@ -180,7 +180,7 @@ def compute_Semantics_2d():
 	rating_dict = {}
 	rate = Task7.objects.values_list('rating', flat=True).distinct()
 	rating_count = rate.count()
-	rating_count = 6
+#	rating_count = 6
 	for n, each in enumerate(rate):
 		rating_dict[n] = each
 

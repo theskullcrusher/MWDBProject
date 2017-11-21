@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'mwd_proj.phase1',
     'mwd_proj.phase2',
+    'mwd_proj.phase3',
 )
 
 MIDDLEWARE_CLASSES = (

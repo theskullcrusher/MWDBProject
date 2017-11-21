@@ -130,4 +130,4 @@ def compute_Semantics_4(userid):
 		print "Movie details:\nName: {}; Genre {}".format(mv.moviename, mv.genres) 
 
 if __name__ == "__main__":
-	compute_Semantics_4(1027)
+	compute_Semantics_4(80034)
