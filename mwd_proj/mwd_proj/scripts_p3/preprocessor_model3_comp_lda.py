@@ -27,6 +27,7 @@ import operator
 from os import listdir
 import matplotlib
 import matplotlib.pyplot as plt
+from sklearn.decomposition import LatentDirichletAllocation as LDA
 from numpy.linalg import *
 from scipy.stats.stats import pearsonr
 from numpy import linalg as la
@@ -90,7 +91,7 @@ def preprocessor():
     #reg_value = ld*(sum(Q**2) + sum(P**2))
 
     weighted_errors = []
-    n_iterations = 10 #After checking for 10,20,100 iterations, found that errors start to converge after 50 interations
+    n_iterations = 50 #After checking for 10,20,100 iterations, found that errors start to converge after 50 interations
 
     #print Q.shape
     #print P.shape

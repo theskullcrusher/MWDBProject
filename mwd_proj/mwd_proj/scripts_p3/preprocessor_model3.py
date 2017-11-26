@@ -37,7 +37,7 @@ def compute_Semantics_4():
 	dd_total_movie_for_genre = {}
 
 	#Limit is for checking that algorithm works.
-	results = MlUsers.objects.all()
+	results = MlUsers.objects.all()[:1000]
 	for usr in results:
 #		print "for user" , usr.userid
 		dd_users_mvrating[usr.userid] = {}

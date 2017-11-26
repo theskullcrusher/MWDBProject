@@ -17,6 +17,7 @@ os.environ['DJANGO_SETTINGS_MODULE']="mwd_proj.settings"
 django.setup()
 from mwd_proj.utils.utils2 import *
 import traceback
+import pandas as pd
 from django.db.models import Sum
 import operator
 import scipy.sparse as sp
@@ -28,6 +29,17 @@ from django.db.models import Q
 from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, print_user_vector, print_actor_vector, print_movie_vector, part1)
 #from mwd_proj.scripts_p3 import print_movie_vector
 from mwd_proj.scripts_p2.Arun import ppr
+import pandas as pd
+import numpy as np
+from sklearn.metrics import mean_squared_error
+import argparse
+from math import log,exp
+import pprint
+import argparse
+from numpy import *
+import operator
+import pandas as pd
+
 
 def getRelevance(mv_relevance):
 	rel_mv = []
@@ -88,7 +100,7 @@ def getRelevance(mv_relevance):
 		result_gen = MlMovies.objects.values_list('genres').filter(movieid=mv_id)
 		for val in result_gen:
 			genres.extend(val[0].split(","))
-		print(mv_id,genres)
+		#print(mv_id,genres)
 		mv_rel_sum[mv_id] = 0;
 		for genKey in genres:
 			gen = genKey
@@ -99,8 +111,6 @@ def getRelevance(mv_relevance):
     #change this
 	return mv_rel_sum
 
-
-   
 
 def movie_matrix():
 	'''Here the data is (actor X tag) with each cell having TF-IDF values for that Actor and Tag which we use to compute n nearest neighbors'''
@@ -133,7 +143,7 @@ def movie_matrix():
 	decomposed = cosine_similarity(V)
 	return decomposed, movie_dict
 
-def compute_Semantics_1a():
+def compute_Semantics_1a(userid):
 	#Precomputation:
 	#1. Run preprocessor_model3.py
 	#2. Run preprocessor_model3_comp.py	
@@ -256,7 +266,7 @@ def compute_Semantics_1a():
 			if key in prf_movie.items():
 			    userNotWatched[key] *= prf_movie[key] + 0.0001
 
-def compute_Semantics_1b():
+def compute_Semantics_1b(userid):
 	#Precomputation:
 	#1. Run preprocessor_model3_lda.py
 	#2. Run preprocessor_model3_comp_lda.py
@@ -352,33 +362,33 @@ def compute_Semantics_1b():
 
 	while(True):
 	#print "----Sorted movie recommendations-----"
-	movie_recommendations_sorted = sorted(userNotWatched.items(), key=operator.itemgetter(1), reverse=True)
-	#print movie_recommendations_sorted
-	
-	feedback = {}
-	#Return top 5 unwatched movies in the generated recommendations
-	print "\n-------Top 5 Recommended movies------"
-	for i in range(0,5,1):
-		#print movie_recommendations_sorted[i]
-		mv = MlMovies.objects.get(movieid=int(movie_recommendations_sorted[i][0]))
-		print "Movie details:\nName: {}; Genre {}".format(mv.moviename, mv.genres) 
-		feedback[movie_recommendations_sorted[i][0]] = 0;
-	
-	print "-------Submit your feedback (relevant :'1', irrelevant :'0')-------- : "
-	k=1
-    	for key in feedback:
-		print "Movie", k
-		feedback[key] = raw_input("Feedback : ")
-		k+=1
+		movie_recommendations_sorted = sorted(userNotWatched.items(), key=operator.itemgetter(1), reverse=True)
+		#print movie_recommendations_sorted
+		
+		feedback = {}
+		#Return top 5 unwatched movies in the generated recommendations
+		print "\n-------Top 5 Recommended movies------"
+		for i in range(0,5,1):
+			#print movie_recommendations_sorted[i]
+			mv = MlMovies.objects.get(movieid=int(movie_recommendations_sorted[i][0]))
+			print "Movie details:\nName: {}; Genre {}".format(mv.moviename, mv.genres) 
+			feedback[movie_recommendations_sorted[i][0]] = 0;
+		
+		print "-------Submit your feedback (relevant :'1', irrelevant :'0')-------- : "
+		k=1
+	    	for key in feedback:
+			print "Movie", k
+			feedback[key] = raw_input("Feedback : ")
+			k+=1
 
 
-	#Get the probabilistic relevance feedback values for all movies (prf)
-	prf_movie = getRelevance(feedback)
+		#Get the probabilistic relevance feedback values for all movies (prf)
+		prf_movie = getRelevance(feedback)
 
-	#Update the Rating vals (if value is 0, set to 0.0001):
-	for key in userNotWatched.items():
-		if key in prf_movie.items():
-		    userNotWatched[key] *= prf_movie[key] + 0.0001 
+		#Update the Rating vals (if value is 0, set to 0.0001):
+		for key in userNotWatched.items():
+			if key in prf_movie.items():
+			    userNotWatched[key] *= prf_movie[key] + 0.0001 
 
 def compute_Semantics_1c(userid):
 	"""Tensor decomposition on tag,movie,user and put actor into non-overlapping bins of latent semantics"""
@@ -560,15 +570,11 @@ if __name__ == "__main__":
 	userid = 88
 	#userid = 19379
 	start_time = time.time()
-	compute_Semantics_1c(userid)
-	# my_mvs = {}
-	# my_mvs['9739'] = 0
-	# my_mvs['6097'] = 1
-	# my_mvs['3189'] = 1
-	# my_mvs['8901'] = 0
-	# my_mvs['5000'] = 1
-	# getRelevance(my_mvs)
+	#compute_Semantics_1a(userid)
+	compute_Semantics_1b(userid)
+	#compute_Semantics_1c(userid)
 	#compute_Semantics_1d(userid)
+	#compute_Semantics_1e(userid)
 	print("--- %s seconds ---" % (time.time() - start_time))
 	
 	
