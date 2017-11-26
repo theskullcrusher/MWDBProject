@@ -260,11 +260,11 @@ def compute_Semantics_1a(userid):
 
 		#Get the probabilistic relevance feedback values for all movies (prf)
 		prf_movie = getRelevance(feedback)
-
 		#Update the Rating vals (if value is 0, set to 0.0001):
 		for key in userNotWatched.items():
-			if key in prf_movie.items():
-			    userNotWatched[key] *= prf_movie[key] + 0.0001
+			if key[0] in prf_movie.keys():
+				#print key
+				userNotWatched[key[0]] *= prf_movie[key[0]] + 0.0001
 
 def compute_Semantics_1b(userid):
 	#Precomputation:
@@ -382,13 +382,13 @@ def compute_Semantics_1b(userid):
 			k+=1
 
 
-		#Get the probabilistic relevance feedback values for all movies (prf)
+		#Update the Rating vals (if value is 0, set to 0.0001):
 		prf_movie = getRelevance(feedback)
-
 		#Update the Rating vals (if value is 0, set to 0.0001):
 		for key in userNotWatched.items():
-			if key in prf_movie.items():
-			    userNotWatched[key] *= prf_movie[key] + 0.0001 
+			if key[0] in prf_movie.keys():
+				#print key
+				userNotWatched[key[0]] *= prf_movie[key[0]] + 0.0001
 
 def compute_Semantics_1c(userid):
 	"""Tensor decomposition on tag,movie,user and put actor into non-overlapping bins of latent semantics"""
