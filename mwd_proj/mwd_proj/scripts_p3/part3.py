@@ -39,22 +39,26 @@ def compute_Semantics_3a(method, k_topics):
 	values = {}
 	s_time = time.time()
 
-	with open('pre_movie_tfidf.json','r') as f:
-		saved_dict = json.load(f)
-		movies = saved_dict['movies']
-		tags = saved_dict['tags']
-		values = saved_dict['values']
+
+	#once json is present
+	# with open('pre_movie_tfidf.json','r') as f:
+	# 	saved_dict = json.load(f)
+	# 	movies = saved_dict['movies']
+	# 	tags = saved_dict['tags']
+	# 	values = saved_dict['values']
 
 
 
 	#All movies
-	# movies = MlMovies.objects.values_list('moviename', flat=True)
-	# movies = [x.strip() for x in movies]
-	# movies = list(set(movies))
+	movies = MlMovies.objects.values_list('moviename', flat=True)
+	movies = [x.strip() for x in movies]
+	movies = list(set(movies))
 	#All tags
 	tagobjs = GenomeTags.objects.values_list('tagid','tag')
 	tags_dict = {x[0]:x[1] for x in tagobjs}
-	# tags = list(GenomeTags.objects.values_list('tagid', flat=True))
+	tags = list(GenomeTags.objects.values_list('tagid', flat=True))
+
+
 
 	'''Matrix Dataset'''
 	V = sp.lil_matrix((len(movies), len(tags)))
@@ -66,29 +70,31 @@ def compute_Semantics_3a(method, k_topics):
 		for j in range(len(tags)):
 			V[i, j] = values[str(i)+','+str(j)]
 
-	# to_save_dict = {}
-	# to_save_dict['movies'] = movies 
-	# to_save_dict['tags'] = tags
-	# values = {}
-	# #Run only for the first time
-	# print len(movies)
-	# print len(tags)
-	# t = time.time()
+	#	one-time-thing
+	to_save_dict = {}
+	to_save_dict['movies'] = movies 
+	to_save_dict['tags'] = tags
+	values = {}
+	#Run only for the first time
+	print len(movies)
+	print len(tags)
+	t = time.time()
 
-	#one-time-thing
-	# for i in range(len(movies)):
-	# 	# tf_idf = compute_tf_idf_movie(cur_movie,"TF-IDF")
-	# 	tf_idf = print_movie_vector.main(str(movies[i]), 1)
-	# 	for j in range(len(tags)):
-	# 		V[i, j] = tf_idf[tags[j]]
-	# 		values[str(i)+','+str(j)] = tf_idf[tags[j]]
-	# 	if i%500 == 0:
-	# 		print i
-	# 		t1 = time.time()
-	# 		print "Min:",int(t1 - t)/60, " Sec:",(t1 - t)%60 
-	# to_save_dict['values'] = values
-	# with open('pre_movie_tfidf.json','w+') as f:
-	# 	json.dump(to_save_dict, f)
+	for i in range(len(movies)):
+		# tf_idf = compute_tf_idf_movie(cur_movie,"TF-IDF")
+		tf_idf = print_movie_vector.main(str(movies[i]), 1)
+		for j in range(len(tags)):
+			V[i, j] = tf_idf[tags[j]]
+			values[str(i)+','+str(j)] = tf_idf[tags[j]]
+		if i%500 == 0:
+			print i
+			t1 = time.time()
+			print "Min:",int(t1 - t)/60, " Sec:",(t1 - t)%60 
+	to_save_dict['values'] = values
+	with open('pre_movie_tfidf.json','w+') as f:
+		json.dump(to_save_dict, f)
+	#onetime thing ends here
+
 
 
 	if(method.upper() == 'SVD'):
@@ -177,7 +183,7 @@ def compute_Semantics_3b(movie_list, layers=5, hash_size=10, input_dim=500):
 		lsh.index(movie_vector)
 	return lsh
 
-def compute_Semantics_3c(lsh, query_point, measure="euclidean", r=None):
+def compute_Semantics_3c(lsh, query_point, measure="euclidean"):
 	return lsh.query(query_point, num_results=r, distance_func=measure)
 
 
@@ -203,7 +209,7 @@ if __name__ == "__main__":
 	print 'Movie number in list:',n
 	query_point = vectors[n]
 	print "\nMovie to query: ", movies[n]
-	candidates_length, result = compute_Semantics_3c(lsh, query_point, measure="euclidean", r=None)
+	candidates_length, result = compute_Semantics_3c(lsh, query_point, measure="euclidean")
 	#measure =  ("hamming", "euclidean", "true_euclidean", "centred_euclidean", "cosine", "l1norm")
 	#print result
 	result_length = len(result)
