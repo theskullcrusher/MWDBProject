@@ -37,7 +37,7 @@ def compute_Semantics_4():
 	dd_total_movie_for_genre = {}
 
 	#Limit is for checking that algorithm works.
-	results = MlUsers.objects.all()[:100]
+	results = MlUsers.objects.all()[:1000]
 	for usr in results:
 #		print "for user" , usr.userid
 		dd_users_mvrating[usr.userid] = {}
@@ -119,15 +119,15 @@ def compute_Semantics_4():
 	user_ids_df = pd.DataFrame(usr_mvrating_matrix.columns.values, columns=["user_ids"] )
 	movie_ids_df = pd.DataFrame(usr_mvrating_matrix.index, columns=["movie_ids"] )
 
-	user_ids_df.to_csv("user_ids.csv",sep="\t")
-	movie_ids_df.to_csv("movie_ids.csv", sep="\t")
+	user_ids_df.to_csv("user_ids_lda.csv",sep="\t")
+	movie_ids_df.to_csv("movie_ids_lda.csv", sep="\t")
 	return usr_mvrating_matrix
 
 if __name__ == "__main__":
 	usr_mvrating_matrix = compute_Semantics_4()
 	# usr_genre_matrix = usr_genre_matrix.T
 	# pprint.pprint(usr_genre_matrix)
-	usr_mvrating_matrix.to_csv("factorization_1_user_mvrating.csv", sep='\t')
+	usr_mvrating_matrix.to_csv("factorization_1_user_mvrating_lda.csv", sep='\t')
 
 
 
