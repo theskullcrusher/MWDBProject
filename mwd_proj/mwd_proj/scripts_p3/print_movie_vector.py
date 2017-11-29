@@ -65,9 +65,9 @@ def main(movie, flag=1):
 		except:
 			return tf_dict
 		if max_val == float(0.0):
-			max_val == 0.001
+			max_val = 0.001
 		if total == float(0.0):
-			total == 0.001
+			total = 0.001
 		for record in records:
 			if flag == 1:
 				tf_dict[record.tagid] = 0.5 + 0.5*(float(record.score / total) / max_val)
@@ -85,8 +85,10 @@ def main(movie, flag=1):
 			if flag == 1:
 				tagobj = GenomeTags.objects.get(tagid=tagid)
 			else:
-				tagobj = GenomeTags.objects.get(tag=tagid)
+				tagobj = GenomeTags.objects.get(tag=tagid) 
 			count = MlTags.objects.filter(tagid=tagobj).aggregate(Sum('norm_weight'))['norm_weight__sum']
+			if count == float(0.0):
+				count = 0.001
 			idf_score = math.log10(float(D)/float(count))
 			idf_score = idf_score / max_
 			tf_dict[tag] *= idf_score
