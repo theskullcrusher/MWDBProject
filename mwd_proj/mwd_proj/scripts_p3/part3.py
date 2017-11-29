@@ -31,6 +31,7 @@ from mwd_proj.scripts_p3.lshash import LSHash
 from collections import OrderedDict
 
 
+
 def compute_Semantics_3a(method, k_topics):
 	"""Here the data is (movie X tags) with each cell having Tf-IDF values for that movie and tag"""
 	print "\n\n\n============================================"
@@ -178,7 +179,7 @@ def compute_Semantics_3a(method, k_topics):
 
 def compute_Semantics_3b(movie_list, layers=5, hash_size=10, input_dim=500):
 	""" Creates an inmemory datastructure with layers and hash_size with given input movies"""
-	lsh = LSHash(hash_size, input_dim, num_hashtables=layers)
+	lsh = LSHash(hash_size, input_dim, num_hashtables=layers, matrices_filename="matrices.npz",overwrite=False)
 	for movie_vector in movie_list:
 		lsh.index(movie_vector)
 	return lsh
@@ -187,16 +188,40 @@ def compute_Semantics_3c(lsh, query_point, measure="euclidean"):
 	return lsh.query(query_point, num_results=r, distance_func=measure)
 
 
+'''Phase 3 task 4 template'''
+def modify_Query_with_feedback(query,relevant,irrelevant):
+    #give importance to relevant docs... don't worry too much about irrelevancy that's why gamma ahas low value
+    alpha = 1.0
+    beta = 0.8
+    gamma = 0.1
+    sigma_r = np.zeros(relevant.shape[1])
+    sigma_ir = np.zeros(irrelevant.shape[1])
+    for r in relevant:
+        sigma_r = np.add(sigma_r,r)
+    for ir in irrelevant:
+        sigma_ir = np.add(sigma_ir,ir)
+
+    relevant_term = np.multiply(sigma_r,beta/relevant.shape[0])
+    irrelevant_term = np.multiply(sigma_ir, -1* gamma / irrelevant.shape[0])
+
+    temp = np.add(relevant_term,irrelevant_term)
+    modified_query = np.add(query,temp)
+    print "\n\nModified Query = \n",modified_query
+    return modified_query.tolist()
+
+
 if __name__ == "__main__":
+
+	####################3a########################
 	vectors, movies=compute_Semantics_3a('SVD',500)
 	vectors = [list(x) for x in vectors]
 
+	####################3b########################
 	movie_list = vectors
-	#movie_list.extend([list(vectors[3]), list(vectors[10]), list(vectors[25]), list(vectors[30])])
-	#print "Input Movies to index are:", movies[3],', ', movies[10],', ', movies[25],', ',movies[30]
-
 	lsh = compute_Semantics_3b(movie_list, layers=30, hash_size=10, input_dim=500)
-	
+	r = 50
+
+	####################3c########################
 	#input_movie = "Friday Night Lights"
 	input_movie = "Harry Potter and the Prisoner of Azkaban"
 	for n, mov in enumerate(movies):
@@ -207,13 +232,12 @@ if __name__ == "__main__":
 		exit()
 
 	print 'Movie number in list:',n
-	query_point = vectors[n]
 	print "\nMovie to query: ", movies[n]
+	query_point = vectors[n]
 	candidates_length, result = compute_Semantics_3c(lsh, query_point, measure="euclidean")
 	#measure =  ("hamming", "euclidean", "true_euclidean", "centred_euclidean", "cosine", "l1norm")
 	#print result
 	result_length = len(result)
-	r = 50
 	if len(result) < r:
 		r = len(result)
 
@@ -222,7 +246,15 @@ if __name__ == "__main__":
 	for i in xrange(r):
 		x = movie_list.index(list(result[i][0]))
 		output.append((movies[x],result[i][1]))
-
-	print "\nSimilar movies:",output
+	print "\n",output
 	print "\nTotal considered movies:",candidates_length
 	print "\nUnique considered movies:",result_length
+
+
+	####################4########################
+	#Part 4 starts here
+	# query = np.array([1,1,1,1])
+	# #relevants are those who have first element non-zero
+	# relevant = np.array([[1,0,0,0],[2,0,0,0],[3,0,0,0]])
+	# irrelevant = np.array([[0,1,1,0],[0,2,5,1],[0,2,1.5,2.2]])
+	# modify_Query_with_feedback(query,relevant,irrelevant)
