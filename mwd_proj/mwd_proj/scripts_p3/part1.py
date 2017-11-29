@@ -336,7 +336,7 @@ def compute_Semantics_1b(userid):
 def compute_Semantics_1c(userid):
 	"""Tensor decomposition on tag,movie,user and put actor into non-overlapping bins of latent semantics"""
 	print "\n\n"
-	user_limit = 70000
+	user_limit = 80000
 	usr_obj = MlUsers.objects.filter(userid__gte=user_limit).distinct()
 	mov_obj = MlMovies.objects.filter(year__gte=2004).distinct()
 	setMovies = MlRatings.objects.filter(movieid__in=mov_obj,userid=userid).values_list("movieid")
@@ -528,38 +528,49 @@ def compute_Semantics_1d(userid):
 
 def compute_Semantics_1e(movie_svd,movie_lda,movie_tensor,movie_pagerank):
 	'''Get all the movie vectors from each of the method, normalize them and compute a single value'''	
-	movie_svd_sorted = sorted(movie_svd.items(), key=operator.itemgetter(1))
+	movie_svd_sorted = sorted(movie_svd.items(), key=operator.itemgetter(1), reverse=True)
 	svd_max = movie_svd_sorted[0][1]	
 	svd_min = movie_svd_sorted[len(movie_svd_sorted)-1][1]
 	for mv,v in movie_svd.iteritems():
 		v = float(v - svd_min)/float(svd_max - svd_min)
+		movie_svd[mv] = v
 
-	movie_lda_sorted = sorted(movie_lda.items(), key=operator.itemgetter(1))
+	movie_lda_sorted = sorted(movie_lda.items(), key=operator.itemgetter(1), reverse=True)
 	lda_max = movie_lda_sorted[0][1]	
-	lda_min = movie_lda_sorted[len(movie_svd_sorted)-1][1]
+	lda_min = movie_lda_sorted[len(movie_lda_sorted)-1][1]
 	for mv,v in movie_lda.iteritems():
 		v = float(v - lda_min)/float(lda_max - lda_min)	
+		movie_lda[mv] = v
 
 
-	movie_tensor_sorted = sorted(movie_tensor.items(), key=operator.itemgetter(1))
+	movie_tensor_sorted = sorted(movie_tensor.items(), key=operator.itemgetter(1), reverse=True)
 	tensor_max = movie_tensor_sorted[0][1]	
-	tensor_min = movie_tensor_sorted[len(movie_svd_sorted)-1][1]
+	tensor_min = movie_tensor_sorted[len(movie_tensor_sorted)-1][1]
 	for mv,v in movie_tensor.iteritems():
 		v = float(v - tensor_min)/float(tensor_max - tensor_min)
+		movie_tensor[mv] = v
 
-	movie_pagerank_sorted = sorted(movie_pagerank.items(), key=operator.itemgetter(1))
+	movie_pagerank_sorted = sorted(movie_pagerank.items(), key=operator.itemgetter(1), reverse=True)
 	pgrank_max = movie_pagerank_sorted[0][1]	
-	pgrank_min = movie_pagerank_sorted[len(movie_svd_sorted)-1][1]
+	pgrank_min = movie_pagerank_sorted[len(movie_pagerank_sorted)-1][1]
 	for mv,v in movie_pagerank.iteritems():
 		v = float(v - pgrank_min)/float(pgrank_max - pgrank_min)
+		movie_pagerank[mv] = v
 
 	movie_all={}
 
-	for mv,v in movie_svd:
+	for mv,v in movie_svd.items():
+		svd_v = movie_svd[mv]
 		lda_v = movie_lda[mv]
-		tensor_v = movie_tensor[mv]
-		pgrank_v = movie_pagerank[mv]
-		movie_all[mv] = v*lda_v*tensor_v*pgrank_v
+		if mv not in movie_tensor:
+			tensor_v = 1.0
+		else:
+			tensor_v = movie_tensor[mv]
+		if mv not in movie_pagerank:
+			pgrank_v = 1.0
+		else:
+			pgrank_v = movie_pagerank[mv]
+		movie_all[mv] = svd_v*lda_v*tensor_v*pgrank_v
 	
 	return movie_all
 
@@ -633,9 +644,10 @@ if __name__ == "__main__":
 	#compute_Semantics_1d(userid)
 	#compute_Semantics_1e(userid)
 	#compute_Recommendation("svd",88)
-	compute_Recommendation("lda",88)
+	#compute_Recommendation("lda",88)
 	#compute_Recommendation("tensor",80010)
 	#compute_Recommendation("pr",88)
+	compute_Recommendation("all",88)
 	print("--- %s seconds ---" % (time.time() - start_time))
 	
 	
