@@ -540,7 +540,7 @@ def compute_Semantics_1e(movie_svd,movie_lda,movie_tensor,movie_pagerank):
 	lda_min = movie_lda_sorted[len(movie_lda_sorted)-1][1]
 	for mv,v in movie_lda.iteritems():
 		v = float(v - lda_min)/float(lda_max - lda_min)	
-		movie_lda[mv] = v
+		#movie_lda[mv] = v
 
 
 	movie_tensor_sorted = sorted(movie_tensor.items(), key=operator.itemgetter(1), reverse=True)
