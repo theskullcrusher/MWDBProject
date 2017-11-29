@@ -632,7 +632,9 @@ if __name__ == "__main__":
 	#compute_Semantics_1c(userid)
 	#compute_Semantics_1d(userid)
 	#compute_Semantics_1e(userid)
-	compute_Recommendation("tensor",80010)
+	#compute_Recommendation("svd",88)
+	compute_Recommendation("lda",88)
+	#compute_Recommendation("tensor",80010)
 	#compute_Recommendation("pr",88)
 	print("--- %s seconds ---" % (time.time() - start_time))
 	
