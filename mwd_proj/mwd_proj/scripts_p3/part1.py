@@ -235,36 +235,7 @@ def compute_Semantics_1a(userid):
 
 	#print "---- movies not watched---"
 	#print userNotWatched
-
-	while(True):
-		#print "----Sorted movie recommendations-----"
-		movie_recommendations_sorted = sorted(userNotWatched.items(), key=operator.itemgetter(1), reverse=True)
-		#print movie_recommendations_sorted
-		
-		feedback = {}
-		#Return top 5 unwatched movies in the generated recommendations
-		print "\n-------Top 5 Recommended movies------"
-		for i in range(0,5,1):
-			#print movie_recommendations_sorted[i]
-			mv = MlMovies.objects.get(movieid=int(movie_recommendations_sorted[i][0]))
-			print "Movie details:\nName: {}; Genre {}".format(mv.moviename, mv.genres) 
-			feedback[movie_recommendations_sorted[i][0]] = 0;
-		
-		print "-------Submit your feedback (relevant :'1', irrelevant :'0')-------- : "
-		k=1
-	    	for key in feedback:
-			print "Movie", k
-			feedback[key] = raw_input("Feedback : ")
-			k+=1
-
-
-		#Get the probabilistic relevance feedback values for all movies (prf)
-		prf_movie = getRelevance(feedback)
-		#Update the Rating vals (if value is 0, set to 0.0001):
-		for key in userNotWatched.items():
-			if key[0] in prf_movie.keys():
-				#print key
-				userNotWatched[key[0]] *= prf_movie[key[0]] + 0.0001
+	return userNotWatched
 
 def compute_Semantics_1b(userid):
 	#Precomputation:
@@ -358,37 +329,7 @@ def compute_Semantics_1b(userid):
 
 	#print "---- movies not watched---"
 	#print userNotWatched
-
-
-	while(True):
-	#print "----Sorted movie recommendations-----"
-		movie_recommendations_sorted = sorted(userNotWatched.items(), key=operator.itemgetter(1), reverse=True)
-		#print movie_recommendations_sorted
-		
-		feedback = {}
-		#Return top 5 unwatched movies in the generated recommendations
-		print "\n-------Top 5 Recommended movies------"
-		for i in range(0,5,1):
-			#print movie_recommendations_sorted[i]
-			mv = MlMovies.objects.get(movieid=int(movie_recommendations_sorted[i][0]))
-			print "Movie details:\nName: {}; Genre {}".format(mv.moviename, mv.genres) 
-			feedback[movie_recommendations_sorted[i][0]] = 0;
-		
-		print "-------Submit your feedback (relevant :'1', irrelevant :'0')-------- : "
-		k=1
-	    	for key in feedback:
-			print "Movie", k
-			feedback[key] = raw_input("Feedback : ")
-			k+=1
-
-
-		#Update the Rating vals (if value is 0, set to 0.0001):
-		prf_movie = getRelevance(feedback)
-		#Update the Rating vals (if value is 0, set to 0.0001):
-		for key in userNotWatched.items():
-			if key[0] in prf_movie.keys():
-				#print key
-				userNotWatched[key[0]] *= prf_movie[key[0]] + 0.0001
+	return userNotWatched
 
 def compute_Semantics_1c(userid):
 	"""Tensor decomposition on tag,movie,user and put actor into non-overlapping bins of latent semantics"""
@@ -564,6 +505,94 @@ def compute_Semantics_1d(userid):
 		# 		results[index1][index2] -= 0.01 
 		# 		results[index2][index1] -= 0.01
 		# 		#print(results[index1][index2])
+
+
+def compute_Semantics_1e(movie_svd,movie_lda,movie_tensor,movie_pagerank):
+	'''Get all the movie vectors from each of the method, normalize them and compute a single value'''	
+	movie_svd_sorted = sorted(movie_svd.items(), key=operator.itemgetter(1))
+	svd_max = movie_svd_sorted[0][1]	
+	svd_min = movie_svd_sorted[len(movie_svd_sorted)-1][1]
+	for mv,v in movie_svd.iteritems():
+		v = float(v - svd_min)/float(svd_max - svd_min)
+
+	movie_lda_sorted = sorted(movie_lda.items(), key=operator.itemgetter(1))
+	lda_max = movie_lda_sorted[0][1]	
+	lda_min = movie_lda_sorted[len(movie_svd_sorted)-1][1]
+	for mv,v in movie_lda.iteritems():
+		v = float(v - lda_min)/float(lda_max - lda_min)	
+
+
+	movie_tensor_sorted = sorted(movie_tensor.items(), key=operator.itemgetter(1))
+	tensor_max = movie_tensor_sorted[0][1]	
+	tensor_min = movie_tensor_sorted[len(movie_svd_sorted)-1][1]
+	for mv,v in movie_tensor.iteritems():
+		v = float(v - tensor_min)/float(tensor_max - tensor_min)
+
+	movie_pagerank_sorted = sorted(movie_pagerank.items(), key=operator.itemgetter(1))
+	pgrank_max = movie_pagerank_sorted[0][1]	
+	pgrank_min = movie_pagerank_sorted[len(movie_svd_sorted)-1][1]
+	for mv,v in movie_pagerank.iteritems():
+		v = float(v - pgrank_min)/float(pgrank_max - pgrank_min)
+
+	movie_all={}
+
+	for mv,v in movie_svd:
+		lda_v = movie_lda[mv]
+		tensor_v = movie_tensor[mv]
+		pgrank_v = movie_pagerank[mv]
+		movie_all[mv] = v*lda_v*tensor_v*pgrank_v
+	
+	return movie_all
+
+def compute_Feedback(userNotWatched)
+	'''Currently computes feedback of SVD and LDA'''	
+	while(True):
+		#print "----Sorted movie recommendations-----"
+		movie_recommendations_sorted = sorted(userNotWatched.items(), key=operator.itemgetter(1), reverse=True)
+		#print movie_recommendations_sorted
+		
+		feedback = {}
+		#Return top 5 unwatched movies in the generated recommendations
+		print "\n-------Top 5 Recommended movies------"
+		for i in range(0,5,1):
+			#print movie_recommendations_sorted[i]
+			mv = MlMovies.objects.get(movieid=int(movie_recommendations_sorted[i][0]))
+			print "Movie details:\nName: {}; Genre {}".format(mv.moviename, mv.genres) 
+			feedback[movie_recommendations_sorted[i][0]] = 0;
+		
+		print "-------Submit your feedback (relevant :'1', irrelevant :'0')-------- : "
+		k=1
+	    	for key in feedback:
+			print "Movie", k
+			feedback[key] = raw_input("Feedback : ")
+			k+=1
+
+
+		#Get the probabilistic relevance feedback values for all movies (prf)
+		prf_movie = getRelevance(feedback)
+
+		#Update the Rating vals (if value is 0, set to 0.0001):
+		for key in userNotWatched.items():
+			if key in prf_movie.items():
+			    userNotWatched[key] *= prf_movie[key] + 0.0001
+
+
+def compute_Recommendation(method,userid):
+	'''Main funcntion to run by passing appropriate method and userID'''
+	if(method.upper() == 'SVD' or method.upper() == 'LDA'):
+		movie_matrix= compute_Semantics_1a(userid)
+		compute_Feedback(movie_matrix)
+
+	#Create similar methods for 1c and 1d
+
+	if(method.upper() == 'ALL'):
+		movie_svd = compute_Semantics_1a(userid)
+		movie_lda = compute_Semantics_1b(userid)
+		movie_tensor = compute_Semantics_1c(userid)
+		movie_pagerank = compute_Semantics_1d(userid)
+		movie_all = compute_Semantics_1e(movie_svd,movie_lda,movie_tensor,movie_pagerank)
+		compute_Feedback(movie_all)
+
 
 
 if __name__ == "__main__":
