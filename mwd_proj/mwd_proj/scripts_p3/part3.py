@@ -31,6 +31,7 @@ from mwd_proj.scripts_p3.lshash import LSHash
 from collections import OrderedDict
 
 
+
 def compute_Semantics_3a(method, k_topics):
 	"""Here the data is (movie X tags) with each cell having Tf-IDF values for that movie and tag"""
 	print "\n\n\n============================================"
@@ -41,22 +42,22 @@ def compute_Semantics_3a(method, k_topics):
 
 
 	#once json is present
-	# with open('pre_movie_tfidf.json','r') as f:
-	# 	saved_dict = json.load(f)
-	# 	movies = saved_dict['movies']
-	# 	tags = saved_dict['tags']
-	# 	values = saved_dict['values']
+	with open('pre_movie_tfidf.json','r') as f:
+		saved_dict = json.load(f)
+		movies = saved_dict['movies']
+		tags = saved_dict['tags']
+		values = saved_dict['values']
 
 
 
 	#All movies
-	movies = MlMovies.objects.values_list('moviename', flat=True)
-	movies = [x.strip() for x in movies]
-	movies = list(set(movies))
+	# movies = MlMovies.objects.values_list('moviename', flat=True)
+	# movies = [x.strip() for x in movies]
+	# movies = list(set(movies))
 	#All tags
 	tagobjs = GenomeTags.objects.values_list('tagid','tag')
 	tags_dict = {x[0]:x[1] for x in tagobjs}
-	tags = list(GenomeTags.objects.values_list('tagid', flat=True))
+	# tags = list(GenomeTags.objects.values_list('tagid', flat=True))
 
 
 
@@ -70,29 +71,30 @@ def compute_Semantics_3a(method, k_topics):
 		for j in range(len(tags)):
 			V[i, j] = values[str(i)+','+str(j)]
 
-	#	one-time-thing
-	to_save_dict = {}
-	to_save_dict['movies'] = movies 
-	to_save_dict['tags'] = tags
-	values = {}
-	#Run only for the first time
-	print len(movies)
-	print len(tags)
-	t = time.time()
 
-	for i in range(len(movies)):
-		# tf_idf = compute_tf_idf_movie(cur_movie,"TF-IDF")
-		tf_idf = print_movie_vector.main(str(movies[i]), 1)
-		for j in range(len(tags)):
-			V[i, j] = tf_idf[tags[j]]
-			values[str(i)+','+str(j)] = tf_idf[tags[j]]
-		if i%500 == 0:
-			print i
-			t1 = time.time()
-			print "Min:",int(t1 - t)/60, " Sec:",(t1 - t)%60 
-	to_save_dict['values'] = values
-	with open('pre_movie_tfidf.json','w+') as f:
-		json.dump(to_save_dict, f)
+	#	one-time-thing
+	# to_save_dict = {}
+	# to_save_dict['movies'] = movies 
+	# to_save_dict['tags'] = tags
+	# values = {}
+	# #Run only for the first time
+	# print len(movies)
+	# print len(tags)
+	# t = time.time()
+
+	# for i in range(len(movies)):
+	# 	# tf_idf = compute_tf_idf_movie(cur_movie,"TF-IDF")
+	# 	tf_idf = print_movie_vector.main(str(movies[i]), 1)
+	# 	for j in range(len(tags)):
+	# 		V[i, j] = tf_idf[tags[j]]
+	# 		values[str(i)+','+str(j)] = tf_idf[tags[j]]
+	# 	if i%500 == 0:
+	# 		print i
+	# 		t1 = time.time()
+	# 		print "Min:",int(t1 - t)/60, " Sec:",(t1 - t)%60 
+	# to_save_dict['values'] = values
+	# with open('pre_movie_tfidf.json','w+') as f:
+	# 	json.dump(to_save_dict, f)
 	#onetime thing ends here
 
 
@@ -178,7 +180,7 @@ def compute_Semantics_3a(method, k_topics):
 
 def compute_Semantics_3b(movie_list, layers=5, hash_size=10, input_dim=500):
 	""" Creates an inmemory datastructure with layers and hash_size with given input movies"""
-	lsh = LSHash(hash_size, input_dim, num_hashtables=layers)
+	lsh = LSHash(hash_size, input_dim, num_hashtables=layers, matrices_filename="matrices.npz",overwrite=False)
 	for movie_vector in movie_list:
 		lsh.index(movie_vector)
 	return lsh
@@ -187,16 +189,40 @@ def compute_Semantics_3c(lsh, query_point, measure="euclidean"):
 	return lsh.query(query_point, num_results=r, distance_func=measure)
 
 
+'''Phase 3 task 4 template'''
+def compute_Semantics_4(query,relevant,irrelevant):
+    #give importance to relevant docs... don't worry too much about irrelevancy that's why gamma ahas low value
+    alpha = 1.0
+    beta = 0.8
+    gamma = 0.1
+    sigma_r = np.zeros(relevant.shape[1])
+    sigma_ir = np.zeros(irrelevant.shape[1])
+    for r in relevant:
+        sigma_r = np.add(sigma_r,r)
+    for ir in irrelevant:
+        sigma_ir = np.add(sigma_ir,ir)
+
+    relevant_term = np.multiply(sigma_r,beta/relevant.shape[0])
+    irrelevant_term = np.multiply(sigma_ir, -1* gamma / irrelevant.shape[0])
+
+    temp = np.add(relevant_term,irrelevant_term)
+    modified_query = np.add(query,temp)
+    print "\n\nModified Query = \n",modified_query
+    return modified_query.tolist()
+
+
 if __name__ == "__main__":
+
+	####################3a########################
 	vectors, movies=compute_Semantics_3a('SVD',500)
 	vectors = [list(x) for x in vectors]
 
+	####################3b########################
 	movie_list = vectors
-	#movie_list.extend([list(vectors[3]), list(vectors[10]), list(vectors[25]), list(vectors[30])])
-	#print "Input Movies to index are:", movies[3],', ', movies[10],', ', movies[25],', ',movies[30]
-
 	lsh = compute_Semantics_3b(movie_list, layers=30, hash_size=10, input_dim=500)
-	
+	r = 10
+
+	####################3c########################
 	#input_movie = "Friday Night Lights"
 	input_movie = "Harry Potter and the Prisoner of Azkaban"
 	for n, mov in enumerate(movies):
@@ -207,13 +233,11 @@ if __name__ == "__main__":
 		exit()
 
 	print 'Movie number in list:',n
-	query_point = vectors[n]
 	print "\nMovie to query: ", movies[n]
+	query_point = vectors[n]
 	candidates_length, result = compute_Semantics_3c(lsh, query_point, measure="euclidean")
 	#measure =  ("hamming", "euclidean", "true_euclidean", "centred_euclidean", "cosine", "l1norm")
-	#print result
 	result_length = len(result)
-	r = 50
 	if len(result) < r:
 		r = len(result)
 
@@ -222,7 +246,47 @@ if __name__ == "__main__":
 	for i in xrange(r):
 		x = movie_list.index(list(result[i][0]))
 		output.append((movies[x],result[i][1]))
-
-	print "\nSimilar movies:",output
+	print "\n",output
 	print "\nTotal considered movies:",candidates_length
 	print "\nUnique considered movies:",result_length
+
+	print "\nPlease enter your relevancy feedback for all the above {} movies as a single-line, comma-separated values with 1 denoting relevant and 2 denoting irrelevant for all movies in that order:".format(r)
+	input_ = raw_input()	
+	input_ = [int(x.strip()) for x in input_.split(',')]
+	if len(input_)!=r:
+		print "All movies not input for relevancy.Exiting..."
+		exit()
+	####################4########################
+	#Part 4 starts here
+	old_query = np.array(query_point)
+	rel = []
+	irrel = []
+	for n, each in enumerate(input_):
+		if each == 0:
+			irrel.append(list(result[n][0]))
+		else:
+			rel.append(list(result[n][0]))
+		
+	relevant = np.array(rel)
+	irrelevant = np.array(irrel)
+	new_query = compute_Semantics_4(old_query,relevant,irrelevant)
+
+	candidates_length1, result1 = compute_Semantics_3c(lsh, new_query, measure="euclidean")
+	#measure =  ("hamming", "euclidean", "true_euclidean", "centred_euclidean", "cosine", "l1norm")
+	result_length1 = len(result1)
+	if len(result1) < r:
+		r = len(result1)
+
+	output1 = []
+	print "\nMost similar movies to the above movie are:"
+	for i in xrange(r):
+		x = movie_list.index(list(result1[i][0]))
+		output1.append((movies[x],result1[i][1]))
+	print "\n",output1
+	print "\nTotal considered movies:",candidates_length1
+	print "\nUnique considered movies:",result_length1
+
+	print "\nFeature-wise comparison of updated query:"
+	string = ""
+	for i in range(500):
+		string+= "("+str(old_query[i])+','+str(new_query[i])+"), "
