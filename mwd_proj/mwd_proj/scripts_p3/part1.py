@@ -24,10 +24,10 @@ import scipy.sparse as sp
 from sklearn.metrics.pairwise import cosine_similarity
 import math
 from django.db.models.functions import Lower
-from mwd_proj.phase3.models import *
+from mwd_proj.phase2.models import *
 from django.db.models import Q
-from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, print_user_vector, print_actor_vector, part1)
-from mwd_proj.scripts_p3 import print_movie_vector
+from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, print_user_vector, print_actor_vector,print_movie_vector, part1)
+#from mwd_proj.scripts_p3 import print_movie_vector
 from mwd_proj.scripts_p2.Arun import ppr
 import pandas as pd
 import numpy as np
@@ -133,10 +133,12 @@ def movie_matrix():
 	#V = np.zeros(shape=(len(actors), len(tags)))
 	decomposed = []
 	'''get tf-idfs vectors for each actor w.r.t tags'''
-	
+	#print(len(movies))
 	for i in range(len(movies)):
+		#print(i)
 		#print(str(movies[i]))
 		tf_idf = print_movie_vector.main(str(movies[i]), 1)
+		#print(tf_idf)
 		for j in range(len(tags)):
 			V[i, j] = tf_idf[tags[j]]
 
@@ -334,7 +336,7 @@ def compute_Semantics_1b(userid):
 def compute_Semantics_1c(userid):
 	"""Tensor decomposition on tag,movie,user and put actor into non-overlapping bins of latent semantics"""
 	print "\n\n"
-	user_limit = 60000
+	user_limit = 70000
 	usr_obj = MlUsers.objects.filter(userid__gte=user_limit).distinct()
 	mov_obj = MlMovies.objects.filter(year__gte=2004).distinct()
 	setMovies = MlRatings.objects.filter(movieid__in=mov_obj,userid=userid).values_list("movieid")
@@ -374,6 +376,7 @@ def compute_Semantics_1c(userid):
 	#whole_table = MlRatings.objects.all()[:2000]
 	whole_table = MlRatings.objects.filter(movieid__in=mov_obj,userid__in=usr_obj)
 	inv_u = {v: k for k, v in user_dict.iteritems()}
+	#print(inv_u)
 	inv_m = {v: k for k, v in movie_dict.iteritems()}
 	inv_t = {v: k for k, v in tag_dict.iteritems()}
 	index = inv_u[userid]
@@ -410,46 +413,51 @@ def compute_Semantics_1c(userid):
 			#print(movie_score[movie])
 			if movie_dict[movie] not in setMovies:
 				user_movie_list.append((movie_dict[movie],movie_score[movie]))
-			else:
-				user_movie_list.append((movie_dict[movie],0.0))
+			#else:
+				#user_movie_list.append((movie_dict[movie],0.0))
 
 	breakFlag=True
-	while(breakFlag):
-		user_movie_dict = {}
-		for k,v in user_movie_list:
-			#print(k,v)
-			user_movie_dict[k] = v
-		user_movie_list = list(user_movie_dict.items())
-		result = list(reversed(sorted(user_movie_list,key=lambda x: x[1])))
-		till_which = 5
-		#result = [item for item in list3 if item not in list(setMovies)]
-		print("Watched Movies:")
-		rows = MlRatings.objects.all().filter(userid=user_dict[index])
-		for row in rows:
-			print(row.movieid.movieid,row.movieid.moviename,row.movieid.genres)
-		print("Recommended:")
-		for a,b in result[:till_which]:
-			mov = MlMovies.objects.get(movieid=a)
-			print(a,mov.moviename,mov.genres,b)
-		feedback = {}
-		
-		for ea,s in result[:till_which]:
-			print("Enter feedback for: "+str(ea)+"...Hit X to exit")
-			feed = int(raw_input())
-			if feed == 'X':
-				breakFlag = False
-			feedback[ea] = feed
-		
-		movie_vector = getRelevance(feedback)
-		for k,v in movie_vector.items():
-			if v==0.0:
-				v=0.0001
-			user_movie_dict[k] *= v
-		user_movie_list = list(user_movie_dict.items())
+	user_movie_dict = {}
+	for k,v in user_movie_list:
+		#print(k,v)
+		user_movie_dict[k] = v
+	print("Watched Movies:")
+	rows = MlRatings.objects.all().filter(userid=user_dict[index])
+	for row in rows:
+		print(row.movieid.movieid,row.movieid.moviename,row.movieid.genres)
+	return user_movie_dict
+	user_movie_list = list(user_movie_dict.items())
+	result = list(reversed(sorted(user_movie_list,key=lambda x: x[1])))
+	till_which = 5
+	#result = [item for item in list3 if item not in list(setMovies)]
+	print("Watched Movies:")
+	rows = MlRatings.objects.all().filter(userid=user_dict[index])
+	for row in rows:
+		print(row.movieid.movieid,row.movieid.moviename,row.movieid.genres)
+	print("Recommended:")
+	for a,b in result[:till_which]:
+		mov = MlMovies.objects.get(movieid=a)
+		print(a,mov.moviename,mov.genres,b)
+	feedback = {}
+	
+	for ea,s in result[:till_which]:
+		print("Enter feedback for: "+str(ea)+"...Hit X to exit")
+		feed = int(raw_input())
+		if feed == 'X':
+			breakFlag = False
+		feedback[ea] = feed
+	
+	movie_vector = getRelevance(feedback)
+	for k,v in movie_vector.items():
+		if v==0.0:
+			v=0.0001
+		user_movie_dict[k] *= v
+	user_movie_list = list(user_movie_dict.items())
 
 def compute_Semantics_1d(userid):
 	#setActors = set([2312401])
 	results, movie_dict = movie_matrix()
+	#print("movie_matrix_done")
 	with open("movie_sim.csv", "w") as f:
 	    writer = csv.writer(f)
 	    writer.writerows(results)
@@ -471,10 +479,17 @@ def compute_Semantics_1d(userid):
 	nodes,s=ppr.closedform(setIndex,results,0.85)
 	#print(s)
 	#print(s)
+	print("Watched Movies:")
+	for movieid in setMovies:
+			print(MlMovies.objects.get(movieid=movieid).moviename,MlMovies.objects.get(movieid=movieid).genres)
+	list3 = list(reversed(sorted(range(len(s)), key=lambda k: s[k])))
+	result = [item for item in list3 if inv_m[item] not in list(setMovies)]
+	movie_dict = {}
+	for ea in result[len(setMovies):]:
+		movie_dict[inv_m[ea]] = s[ea]
+	return movie_dict
 	breakFlag=True
 	while(breakFlag):
-		list3 = list(reversed(sorted(range(len(s)), key=lambda k: s[k])))
-		result = [item for item in list3 if inv_m[item] not in list(setMovies)]
 		#print(result[:10])
 		till_which = len(setMovies)+5
 		print("Watched Movies:")
@@ -561,24 +576,27 @@ def compute_Feedback(userNotWatched):
 		for i in range(0,5,1):
 			#print movie_recommendations_sorted[i]
 			mv = MlMovies.objects.get(movieid=int(movie_recommendations_sorted[i][0]))
-			print "Movie details:\nName: {}; Genre {}".format(mv.moviename, mv.genres) 
+			print "Movie details:\nName: {}; Genre: {}, Score: {}".format(mv.moviename, mv.genres,movie_recommendations_sorted[i][1]) 
 			feedback[movie_recommendations_sorted[i][0]] = 0;
 		
 		print "-------Submit your feedback (relevant :'1', irrelevant :'0')-------- : "
 		k=1
-	    	for key in feedback:
-			print "Movie", k
-			feedback[key] = raw_input("Feedback : ")
-			k+=1
+	    	for i in range(5):
+				mv = MlMovies.objects.get(movieid=int(movie_recommendations_sorted[i][0]))
+				print "Movie details:\nName: {}; Genre: {}".format(mv.moviename, mv.genres) 
+				feedback[mv.movieid] = int(raw_input("Feedback : "))
+				k+=1
 
 
 		#Get the probabilistic relevance feedback values for all movies (prf)
 		prf_movie = getRelevance(feedback)
 
 		#Update the Rating vals (if value is 0, set to 0.0001):
-		for key in userNotWatched.items():
-			if key in prf_movie.items():
-			    userNotWatched[key] *= prf_movie[key] + 0.0001
+		for k,v in prf_movie.items():
+			if v==0.0:
+				v=0.001
+			if k in userNotWatched:
+				userNotWatched[k] *= v
 
 
 def compute_Recommendation(method,userid):
@@ -587,7 +605,13 @@ def compute_Recommendation(method,userid):
 		movie_matrix= compute_Semantics_1a(userid)
 		compute_Feedback(movie_matrix)
 
-	#Create similar methods for 1c and 1d
+	if(method.upper() == 'TENSOR'):
+		movie_matrix= compute_Semantics_1c(userid)
+		compute_Feedback(movie_matrix)
+	if(method.upper() == 'PR'):
+		movie_matrix= compute_Semantics_1d(userid)
+		#print(movie_matrix)
+		compute_Feedback(movie_matrix)
 
 	if(method.upper() == 'ALL'):
 		movie_svd = compute_Semantics_1a(userid)
@@ -606,8 +630,10 @@ if __name__ == "__main__":
 	#compute_Semantics_1a(userid)
 	#compute_Semantics_1b(userid)
 	#compute_Semantics_1c(userid)
-	compute_Semantics_1d(userid)
+	#compute_Semantics_1d(userid)
 	#compute_Semantics_1e(userid)
+	compute_Recommendation("tensor",80010)
+	#compute_Recommendation("pr",88)
 	print("--- %s seconds ---" % (time.time() - start_time))
 	
 	
