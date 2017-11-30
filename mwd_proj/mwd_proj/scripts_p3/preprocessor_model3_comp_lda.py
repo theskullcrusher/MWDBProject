@@ -98,7 +98,7 @@ def preprocessor():
     #R_df = pd.DataFrame(R)
 
     #print "------------------"
-
+    '''
     for ii in range(n_iterations):
         for u, Wu in enumerate(kvm):
             #print Wu
@@ -119,7 +119,7 @@ def preprocessor():
         #weighted_errors.append(sum((kvm * (R - R_prime))**2))
         #print weighted_errors
         print('{}th iteration is completed'.format(ii))
-
+    '''
     weighted_R_hat = dot(Q, P)
     weighted_R_df = pd.DataFrame(weighted_R_hat);
     weighted_R_df.to_csv("R_final_lda.csv",sep='\t')
