@@ -178,14 +178,14 @@ def compute_Semantics_3a(method, k_topics):
 	return decomposed, movies
 
 
-def compute_Semantics_3b(movie_list, layers=5, hash_size=10, input_dim=500):
+def compute_Semantics_3b(movie_list, layers=5, hash_size=10, input_dim=500,overwrite=False):
 	""" Creates an inmemory datastructure with layers and hash_size with given input movies"""
-	lsh = LSHash(hash_size, input_dim, num_hashtables=layers, matrices_filename="matrices.npz",overwrite=False)
+	lsh = LSHash(hash_size, input_dim, num_hashtables=layers, matrices_filename="matrices.npz",overwrite=overwrite)
 	for movie_vector in movie_list:
 		lsh.index(movie_vector)
 	return lsh
 
-def compute_Semantics_3c(lsh, query_point, measure="euclidean"):
+def compute_Semantics_3c(lsh, query_point, measure="euclidean",r=None):
 	return lsh.query(query_point, num_results=r, distance_func=measure)
 
 
@@ -207,7 +207,7 @@ def compute_Semantics_4(query,relevant,irrelevant):
 
     temp = np.add(relevant_term,irrelevant_term)
     modified_query = np.add(query,temp)
-    print "\n\nModified Query = \n",modified_query
+    #print "\n\nModified Query = \n",modified_query
     return modified_query.tolist()
 
 
@@ -219,7 +219,7 @@ if __name__ == "__main__":
 
 	####################3b########################
 	movie_list = vectors
-	lsh = compute_Semantics_3b(movie_list, layers=30, hash_size=10, input_dim=500)
+	lsh = compute_Semantics_3b(movie_list, layers=15, hash_size=10, input_dim=500)
 	r = 10
 
 	####################3c########################
@@ -233,7 +233,7 @@ if __name__ == "__main__":
 		exit()
 
 	print 'Movie number in list:',n
-	print "\nMovie to query: ", movies[n]
+	print "\nMovie to query: ", movies[n]," : ", str((MlMovies.objects.filter(moviename__icontains=movies[n])[0]).movieid)
 	query_point = vectors[n]
 	candidates_length, result = compute_Semantics_3c(lsh, query_point, measure="euclidean")
 	#measure =  ("hamming", "euclidean", "true_euclidean", "centred_euclidean", "cosine", "l1norm")
@@ -245,7 +245,7 @@ if __name__ == "__main__":
 	print "\nMost similar movies to the above movie are:"
 	for i in xrange(r):
 		x = movie_list.index(list(result[i][0]))
-		output.append((movies[x],result[i][1]))
+		output.append((movies[x],x,result[i][1]))
 	print "\n",output
 	print "\nTotal considered movies:",candidates_length
 	print "\nUnique considered movies:",result_length
@@ -281,7 +281,7 @@ if __name__ == "__main__":
 	print "\nMost similar movies to the above movie are:"
 	for i in xrange(r):
 		x = movie_list.index(list(result1[i][0]))
-		output1.append((movies[x],result1[i][1]))
+		output1.append((movies[x],x,result1[i][1]))
 	print "\n",output1
 	print "\nTotal considered movies:",candidates_length1
 	print "\nUnique considered movies:",result_length1
@@ -290,3 +290,4 @@ if __name__ == "__main__":
 	string = ""
 	for i in range(500):
 		string+= "("+str(old_query[i])+','+str(new_query[i])+"), "
+	print string
