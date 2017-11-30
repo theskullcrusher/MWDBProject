@@ -37,7 +37,7 @@ def compute_Semantics_4():
 	dd_total_movie_for_genre = {}
 
 	#Limit is for checking that algorithm works.
-	results = MlUsers.objects.all()[:1000]
+	results = MlUsers.objects.all()
 	for usr in results:
 #		print "for user" , usr.userid
 		dd_users_mvrating[usr.userid] = {}
@@ -56,7 +56,8 @@ def compute_Semantics_4():
 				continue
 			else:
 #				print user_movie_id, user_movie_rating
-				dd_users_mvrating[usr.userid][user_movie_id] = user_movie_rating
+				mov = MlRatings.objects.filter(userid=usr.userid,movieid=user_movie_id).all()
+				dd_users_mvrating[usr.userid][user_movie_id] = user_movie_rating * mov[0].norm_weight
 
 			#mlmovies_clean maps one movie to a single genre.
 			genres = MlMovies.objects.filter(movieid=user_movie_id).first().genres
@@ -99,7 +100,9 @@ def compute_Semantics_4():
 						val	+= float(dd_av_rating_for_genre[usr.userid][genre])/float(dd_total_movie_for_genre[usr.userid][genre])
 					else:
 						val += 1.0
-				dd_users_mvrating[usr.userid][user_movie_id] = val/float(len(genres))
+				mov = MlTags.objects.filter(userid=usr.userid,movieid=user_movie_id)
+				dd_users_mvrating[usr.userid][user_movie_id] = val*mov[0].norm_weight/float(len(genres))
+
 
 		#Make rating of other movies to zero.
 		movieIDs = list(MlMovies.objects.values_list('movieid',flat=True).distinct())

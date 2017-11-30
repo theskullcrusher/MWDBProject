@@ -24,7 +24,7 @@ import scipy.sparse as sp
 from sklearn.metrics.pairwise import cosine_similarity
 import math
 from django.db.models.functions import Lower
-from mwd_proj.phase2.models import *
+from mwd_proj.phase3.models import *
 from django.db.models import Q
 from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, print_user_vector, print_actor_vector,print_movie_vector, part1)
 #from mwd_proj.scripts_p3 import print_movie_vector
@@ -387,7 +387,8 @@ def compute_Semantics_1c(userid):
 		#print(counter)
 		counter+=1
 		# print(inv_u[row.userid.userid],inv_m[row.movieid.movieid],inv_t[row.rating])
-		results[inv_u[row.userid.userid]][inv_m[row.movieid.movieid]][inv_t[row.rating]]=1.0
+
+		results[inv_u[row.userid.userid]][inv_m[row.movieid.movieid]][inv_t[row.rating]]=1.0*row.norm_weight
 
 	tensor = T.tensor(np.array(results))
 	factors = tensorly.decomposition.parafac(tensor,3)
@@ -645,9 +646,9 @@ if __name__ == "__main__":
 	#compute_Semantics_1e(userid)
 	#compute_Recommendation("svd",88)
 	#compute_Recommendation("lda",88)
-	#compute_Recommendation("tensor",80010)
+	compute_Recommendation("tensor",80010)
 	#compute_Recommendation("pr",88)
-	compute_Recommendation("all",88)
+	#compute_Recommendation("all",88)
 	print("--- %s seconds ---" % (time.time() - start_time))
 	
 	
