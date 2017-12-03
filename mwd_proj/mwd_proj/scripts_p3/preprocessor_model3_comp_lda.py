@@ -44,11 +44,11 @@ matplotlib.style.use('ggplot')
 
 def preprocessor():
     # load data points
-    with open("factorization_1_user_mvrating_lda.csv") as f:
+    with open("factorization_1_user_mvrating.csv") as f:
         ncols = len(f.readline().split('\t'))
 
     #R = pd.DataFrame(loadtxt('factorization_1_user_mvrating.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols)))
-    R = loadtxt('factorization_1_user_mvrating_lda.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols))
+    R = loadtxt('factorization_1_user_mvrating.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols))
 
 
     #kvm known_value_matrix = for values in R[i,j] >0, kvm[i,j] = 1
@@ -67,7 +67,7 @@ def preprocessor():
     #=================================================================================
 
     #How can I select a reduced number of latent semantics here?
-    k_topics = 20
+    k_topics = 50
     lda = LDA(n_components=k_topics, max_iter=10000, learning_method="batch",evaluate_every=10,perp_tol=1e-12)
     lda.fit(R)
     P = lda.components_
