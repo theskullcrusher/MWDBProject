@@ -157,10 +157,10 @@ def compute_Semantics_1a(userid):
 	#After reconstruction, we loose the column and row header names. so we need to do
 	#some mapping.
 
-	with open("R_final.csv") as f:
+	with open("R_final_svd.csv") as f:
 		ncols = len(f.readline().split('\t'))
 
-	R_final = pd.DataFrame(loadtxt('R_final.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols)))
+	R_final = pd.DataFrame(loadtxt('R_final_svd.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols)))
 
 
 	#Get user_ids and movie_ids
@@ -259,14 +259,14 @@ def compute_Semantics_1b(userid):
 
 	#Get user_ids and movie_ids
 
-	with open("user_ids_lda.csv") as f:
+	with open("user_ids.csv") as f:
 		ncols_u = len(f.readline().split('\t'))
 
-	with open("movie_ids_lda.csv") as f:
+	with open("movie_ids.csv") as f:
 		ncols_m = len(f.readline().split('\t'))
 
-	user_list = list(loadtxt('user_ids_lda.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols_u)))
-	movie_list = list(loadtxt('movie_ids_lda.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols_m)))
+	user_list = list(loadtxt('user_ids.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols_u)))
+	movie_list = list(loadtxt('movie_ids.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols_m)))
 
 	#print user_list
 	#print movie_list

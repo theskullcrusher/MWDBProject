@@ -66,7 +66,7 @@ def preprocessor():
     #=================================================================================
 
     #How can I select a reduced number of latent semantics here?
-    k_topics = 20
+    k_topics = 50
     U, s, V = svds(R, k=k_topics)
     #s = linalg.svd(raw_data, full_matrices=False, compute_uv = False)
 
@@ -135,7 +135,7 @@ def preprocessor():
 
     weighted_R_hat = dot(Q, P)
     weighted_R_df = pd.DataFrame(weighted_R_hat);
-    weighted_R_df.to_csv("R_final.csv",sep='\t')
+    weighted_R_df.to_csv("R_final_svd.csv",sep='\t')
 
 
 if __name__ == "__main__":
