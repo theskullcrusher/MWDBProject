@@ -26,8 +26,8 @@ import math
 from django.db.models.functions import Lower
 from mwd_proj.phase3.models import *
 from django.db.models import Q
-from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, print_user_vector, print_actor_vector,print_movie_vector, part1)
-#from mwd_proj.scripts_p3 import print_movie_vector
+from mwd_proj.scripts_p2 import (print_genreactor_vector, print_genre_vector, print_user_vector, print_actor_vector, part1)
+from mwd_proj.scripts_p3 import print_movie_vector
 from mwd_proj.scripts_p2.Arun import ppr
 import pandas as pd
 import numpy as np
@@ -135,7 +135,7 @@ def movie_matrix():
 	'''get tf-idfs vectors for each actor w.r.t tags'''
 	#print(len(movies))
 	for i in range(len(movies)):
-		#print(i)
+		print(i)
 		#print(str(movies[i]))
 		tf_idf = print_movie_vector.main(str(movies[i]), 1)
 		#print(tf_idf)
@@ -157,10 +157,10 @@ def compute_Semantics_1a(userid):
 	#After reconstruction, we loose the column and row header names. so we need to do
 	#some mapping.
 
-	with open("R_final.csv") as f:
+	with open("R_final_svd.csv") as f:
 		ncols = len(f.readline().split('\t'))
 
-	R_final = pd.DataFrame(loadtxt('R_final.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols)))
+	R_final = pd.DataFrame(loadtxt('R_final_svd.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols)))
 
 
 	#Get user_ids and movie_ids
@@ -259,14 +259,14 @@ def compute_Semantics_1b(userid):
 
 	#Get user_ids and movie_ids
 
-	with open("user_ids_lda.csv") as f:
+	with open("user_ids.csv") as f:
 		ncols_u = len(f.readline().split('\t'))
 
-	with open("movie_ids_lda.csv") as f:
+	with open("movie_ids.csv") as f:
 		ncols_m = len(f.readline().split('\t'))
 
-	user_list = list(loadtxt('user_ids_lda.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols_u)))
-	movie_list = list(loadtxt('movie_ids_lda.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols_m)))
+	user_list = list(loadtxt('user_ids.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols_u)))
+	movie_list = list(loadtxt('movie_ids.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols_m)))
 
 	#print user_list
 	#print movie_list
@@ -457,11 +457,23 @@ def compute_Semantics_1c(userid):
 
 def compute_Semantics_1d(userid):
 	#setActors = set([2312401])
-	results, movie_dict = movie_matrix()
+	results =[]
+	with open("movie_sim.csv", 'r') as f:  #opens PW file
+	    reader = csv.reader(f)
+	    results = list(list(rec) for rec in csv.reader(f, delimiter=',')) #reads csv into a list of lists
+	for i in range(len(results)):
+		for j in range(len(results[0])):
+			results[i][j] = float(results[i][j])
+	mov = list(MlMovies.objects.values_list('movieid', flat=True))
+	#All tags
+	movie_dict = {}
+	for n, each in enumerate(list(mov)):
+		movie_dict[each] = n
+	#movie_dict = movie_matrix()
 	#print("movie_matrix_done")
-	with open("movie_sim.csv", "w") as f:
-	    writer = csv.writer(f)
-	    writer.writerows(results)
+	# with open("movie_sim.csv", "w") as f:
+	#     writer = csv.writer(f)
+	#     writer.writerows(results)
 	#print(movie_dict)
 	setMovies = MlRatings.objects.values_list("movieid").filter(userid=userid)
 	setMovies = list(set([mov[0] for mov in setMovies]))
@@ -646,8 +658,8 @@ if __name__ == "__main__":
 	#compute_Semantics_1e(userid)
 	#compute_Recommendation("svd",88)
 	#compute_Recommendation("lda",88)
-	compute_Recommendation("tensor",80010)
-	#compute_Recommendation("pr",88)
+	#compute_Recommendation("tensor",80010)
+	compute_Recommendation("pr",80023)
 	#compute_Recommendation("all",88)
 	print("--- %s seconds ---" % (time.time() - start_time))
 	
