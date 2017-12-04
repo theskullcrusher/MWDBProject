@@ -43,11 +43,11 @@ matplotlib.style.use('ggplot')
 
 def preprocessor():
     # load data points
-    with open("factorization_1_user_mvrating.csv") as f:
+    with open("factorization_1_user_mvrating_svd_usr_grt_70k.csv") as f:
         ncols = len(f.readline().split('\t'))
 
     #R = pd.DataFrame(loadtxt('factorization_1_user_mvrating.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols)))
-    R = loadtxt('factorization_1_user_mvrating.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols))
+    R = loadtxt('factorization_1_user_mvrating_svd_usr_grt_70k.csv',delimiter='\t', skiprows=1, usecols=range(1,ncols))
 
 
     #kvm known_value_matrix = for values in R[i,j] >0, kvm[i,j] = 1
